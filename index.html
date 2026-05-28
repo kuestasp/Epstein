@@ -3,1017 +3,1341 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VALORINK — Find Your Duo</title>
+<title>Dusk — Meet Someone Tonight</title>
 <style>
   :root {
-    --bg-0: #0f1923;
-    --bg-1: #1a2632;
-    --bg-2: #0b141d;
-    --red: #fa4454;
-    --red-dark: #bd3944;
+    --bg-0: #0c0a18;
+    --bg-1: #1a1530;
+    --bg-2: #110d22;
+    --accent: #ff7a5c;
+    --accent-2: #ffb14a;
+    --violet: #9b5cff;
     --teal: #5cf2d6;
-    --gold: #ece8e1;
-    --ink: #ece8e1;
-    --muted: #768079;
-    --grid: rgba(92, 242, 214, 0.08);
+    --ink: #f6efea;
+    --muted: #8e859a;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --danger: #ff4d6d;
+    --success: #5cf2a8;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  @font-face {
-    font-family: "Tungsten";
-    src: local("Impact"), local("Oswald");
-  }
-
+  html, body { height: 100%; }
   body {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
     background:
-      linear-gradient(rgba(15, 25, 35, 0.97), rgba(15, 25, 35, 0.97)),
-      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
-      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
-      var(--bg-0);
+      radial-gradient(900px 500px at -10% -10%, rgba(155, 92, 255, 0.25) 0%, transparent 50%),
+      radial-gradient(700px 400px at 110% 110%, rgba(255, 122, 92, 0.2) 0%, transparent 50%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-2) 100%);
     color: var(--ink);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 16px 80px;
+    padding: 20px 16px 90px;
     overflow-x: hidden;
-    letter-spacing: 0.3px;
   }
 
-  /* HUD chrome */
-  body::before, body::after {
+  .screen { width: 100%; max-width: 440px; display: none; flex-direction: column; align-items: stretch; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* ---------------- LOGIN SCREEN ---------------- */
+  #screen-login {
+    justify-content: center;
+    text-align: center;
+    gap: 18px;
+    padding-top: 40px;
+  }
+
+  .brand {
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 4px;
+  }
+  .brand-sub {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+  }
+
+  .auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 26px 22px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align: left;
+  }
+
+  .auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .auth-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .btn-google {
+    width: 100%;
+    background: #fff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  .btn-google:hover { transform: translateY(-1px); box-shadow: 0 10px 30px -10px rgba(255,255,255,0.2); }
+  .btn-google img, .btn-google svg { width: 18px; height: 18px; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .divider::before, .divider::after {
     content: "";
-    position: fixed;
-    width: 60px;
-    height: 60px;
-    border: 2px solid var(--red);
-    pointer-events: none;
-    z-index: 1;
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
   }
-  body::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
-  body::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
-  header {
+  .field {
+    margin-bottom: 12px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--ink);
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 30px -8px var(--accent); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  .auth-switch {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .auth-switch a {
+    color: var(--accent-2);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .auth-switch a:hover { text-decoration: underline; }
+
+  .demo-banner {
+    background: rgba(255, 177, 74, 0.12);
+    border: 1px solid rgba(255, 177, 74, 0.3);
+    color: var(--accent-2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .demo-banner b { color: #fff; }
+
+  .err {
+    background: rgba(255, 77, 109, 0.12);
+    border: 1px solid rgba(255, 77, 109, 0.3);
+    color: var(--danger);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    margin-top: 10px;
+    display: none;
+  }
+  .err.show { display: block; }
+
+  /* ---------------- TOP BAR (when logged in) ---------------- */
+  .topbar {
     width: 100%;
     max-width: 440px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 22px;
-    z-index: 2;
+    margin-bottom: 18px;
+  }
+  .logo-small {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    display: grid; place-items: center;
+    font-size: 16px;
+    position: relative;
+  }
+  .icon-btn:hover { border-color: var(--accent); }
+  .badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    font-size: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
   }
 
-  .logo {
-    font-family: Impact, "Arial Black", sans-serif;
-    font-size: 30px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    color: var(--red);
-    text-shadow: 2px 2px 0 var(--bg-2);
-  }
-
-  .logo span { color: var(--ink); }
-
-  .rank-pill {
-    font-size: 11px;
-    color: var(--teal);
-    padding: 6px 14px;
-    border: 1px solid var(--teal);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-  }
-
+  /* ---------------- DECK ---------------- */
   .deck {
     position: relative;
     width: 100%;
     max-width: 400px;
-    height: 580px;
-    margin-bottom: 26px;
+    height: min(560px, calc(100vh - 240px));
+    margin: 0 auto 24px;
   }
 
   .card {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background: var(--bg-1);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
     overflow: hidden;
     cursor: grab;
     transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.35s;
     user-select: none;
     touch-action: none;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
-    box-shadow: 0 25px 60px -20px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 25px 60px -20px rgba(0,0,0,0.7);
   }
-
   .card.dragging { transition: none; }
-
-  .card-portrait {
-    height: 58%;
+  .card-photo {
+    height: 62%;
+    background-size: cover;
+    background-position: center;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
   }
-
-  .card-portrait::before {
+  .card-photo::after {
     content: "";
-    position: absolute;
-    inset: 0;
-    background: var(--portrait-bg);
-    opacity: 0.95;
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7));
   }
-
-  .card-portrait::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
-      linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%),
-      repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.05) 20px, rgba(0,0,0,0.05) 21px);
-    pointer-events: none;
+  .photo-fallback {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-size: 90px;
+    font-family: Georgia, serif;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
   }
-
-  .portrait-codename {
-    position: relative;
-    font-family: Impact, "Arial Black", sans-serif;
-    font-size: 92px;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.95);
-    letter-spacing: 6px;
-    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-    z-index: 1;
-    line-height: 1;
-  }
-
-  .portrait-icon {
-    position: absolute;
-    bottom: 14px;
-    right: 18px;
-    font-size: 60px;
-    opacity: 0.7;
-    z-index: 1;
-    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
-  }
-
-  .portrait-role {
-    position: absolute;
-    top: 14px;
-    left: 14px;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--ink);
-    background: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px;
-    z-index: 2;
-    text-transform: uppercase;
-    border-left: 2px solid var(--red);
-  }
-
   .card-info {
     padding: 18px 22px 24px;
-    height: 42%;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
-  }
-
-  .card-name-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .card-realname {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-
-  .card-rank {
-    font-size: 10px;
-    color: var(--gold);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .card-origin {
-    font-size: 12px;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
+    height: 38%;
+    display: flex; flex-direction: column;
     gap: 6px;
   }
-
+  .card-name { font-size: 22px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; }
+  .card-age { color: var(--muted); font-size: 17px; font-weight: 400; }
   .card-bio {
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--ink);
-    opacity: 0.85;
-    margin-top: 6px;
+    font-size: 13px; line-height: 1.5;
+    color: var(--ink); opacity: 0.85;
   }
-
   .card-tags {
     margin-top: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding-top: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding-top: 6px;
   }
-
   .tag {
-    font-size: 10px;
-    padding: 4px 9px;
-    border: 1px solid rgba(92, 242, 214, 0.4);
-    color: var(--teal);
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    color: var(--muted);
   }
 
   .stamp {
     position: absolute;
-    top: 50px;
-    font-family: Impact, sans-serif;
+    top: 36px;
     font-weight: 900;
-    font-size: 38px;
-    padding: 6px 18px;
+    font-size: 32px;
+    padding: 6px 16px;
     border: 4px solid;
-    letter-spacing: 4px;
+    border-radius: 10px;
+    letter-spacing: 2px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.1s;
     z-index: 3;
   }
-
-  .stamp.like {
-    right: 24px;
-    color: var(--teal);
-    border-color: var(--teal);
-    transform: rotate(15deg);
-  }
-
-  .stamp.nope {
-    left: 24px;
-    color: var(--red);
-    border-color: var(--red);
-    transform: rotate(-15deg);
-  }
+  .stamp.like { right: 24px; color: var(--success); border-color: var(--success); transform: rotate(15deg); }
+  .stamp.nope { left: 24px; color: var(--danger); border-color: var(--danger); transform: rotate(-15deg); }
 
   .actions {
-    display: flex;
-    gap: 22px;
+    display: flex; gap: 18px;
     justify-content: center;
-    align-items: center;
   }
-
   .action-btn {
-    width: 64px;
-    height: 64px;
-    border: 2px solid;
-    background: var(--bg-1);
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
     color: var(--ink);
-    font-size: 26px;
+    font-size: 24px;
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
-    display: grid;
-    place-items: center;
-    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
-    font-family: Impact, sans-serif;
+    display: grid; place-items: center;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-
-  .action-btn:hover { transform: translateY(-2px); }
-  .action-btn:active { transform: translateY(0) scale(0.96); }
-
-  .action-btn.nope {
-    color: var(--red);
-    border-color: var(--red);
-  }
-  .action-btn.nope:hover {
-    background: var(--red);
-    color: var(--bg-0);
-    box-shadow: 0 0 25px -5px var(--red);
-  }
-  .action-btn.like {
-    color: var(--teal);
-    border-color: var(--teal);
-  }
-  .action-btn.like:hover {
-    background: var(--teal);
-    color: var(--bg-0);
-    box-shadow: 0 0 25px -5px var(--teal);
-  }
-
-  .action-label {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-align: center;
-    margin-top: 8px;
-  }
-
-  .action-col { display: flex; flex-direction: column; align-items: center; }
+  .action-btn:hover { transform: scale(1.08); }
+  .action-btn.nope { color: var(--danger); }
+  .action-btn.like { color: var(--success); }
+  .action-btn.nope:hover { box-shadow: 0 0 25px -5px var(--danger); }
+  .action-btn.like:hover { box-shadow: 0 0 25px -5px var(--success); }
 
   .empty-state {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     display: none;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 40px;
     color: var(--muted);
-    background: var(--bg-1);
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+    background: var(--card-bg);
+    border-radius: 22px;
+    border: 1px dashed var(--card-border);
   }
+  .empty-state h2 { color: var(--ink); margin-bottom: 8px; font-family: Georgia, serif; font-size: 22px; }
+  .empty-state p { line-height: 1.5; font-size: 13px; }
 
-  .empty-state h2 {
-    color: var(--red);
-    margin-bottom: 12px;
-    font-family: Impact, sans-serif;
-    letter-spacing: 4px;
-    font-size: 28px;
-  }
-
-  .refresh-btn {
-    margin-top: 26px;
-    padding: 12px 32px;
-    background: var(--red);
-    border: none;
-    color: var(--bg-0);
-    font-weight: 900;
-    cursor: pointer;
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-    font-family: Impact, sans-serif;
-  }
-
-  /* Match modal */
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-    padding: 20px;
-  }
-
-  .modal-backdrop.show { display: flex; }
-
-  .modal {
-    width: 100%;
-    max-width: 440px;
-    background: var(--bg-1);
-    border: 1px solid var(--red);
-    display: flex;
-    flex-direction: column;
-    max-height: 88vh;
-    position: relative;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
-  }
-
-  .match-header {
-    padding: 28px 20px 18px;
-    text-align: center;
-    background: linear-gradient(180deg, var(--match-color, var(--red)) 0%, transparent 100%);
-    position: relative;
-  }
-
-  .match-title {
-    font-family: Impact, sans-serif;
-    font-size: 36px;
-    letter-spacing: 6px;
-    color: var(--ink);
-    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
-    margin-bottom: 4px;
-  }
-
-  .match-sub {
-    color: var(--gold);
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .match-photos {
-    display: flex;
-    justify-content: center;
-    margin: 18px 0 6px;
+  /* ---------------- MATCHES LIST ---------------- */
+  #screen-matches { gap: 14px; }
+  .match-row {
+    display: flex; align-items: center;
     gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
   }
-
+  .match-row:hover { border-color: var(--accent); background: rgba(255,255,255,0.08); }
   .match-avatar {
-    width: 70px;
-    height: 70px;
-    display: grid;
-    place-items: center;
-    font-family: Impact, sans-serif;
-    font-size: 24px;
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+    background-color: var(--violet);
+    display: grid; place-items: center;
+    font-weight: 700;
     color: white;
-    letter-spacing: 1px;
-    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
-    border: 2px solid var(--ink);
   }
+  .match-meta { flex: 1; min-width: 0; }
+  .match-meta-name { font-weight: 600; font-size: 15px; }
+  .match-meta-preview {
+    color: var(--muted); font-size: 12.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .match-row .badge { position: static; align-self: center; }
 
+  /* ---------------- CHAT SCREEN ---------------- */
+  #screen-chat { gap: 0; padding-bottom: 0; }
+  .chat-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--card-border);
+    margin-bottom: 12px;
+  }
+  .chat-header .match-avatar { width: 42px; height: 42px; font-size: 14px; }
+  .chat-header-name { font-weight: 600; }
+  .chat-header-sub { font-size: 11px; color: var(--muted); }
+  .chat-back {
+    background: transparent; border: none; color: var(--ink);
+    font-size: 22px; cursor: pointer; padding: 4px 8px;
+  }
   .chat-area {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-height: 220px;
-    background: var(--bg-2);
+    padding: 8px 4px;
+    display: flex; flex-direction: column;
+    gap: 8px;
+    min-height: 300px;
   }
-
   .msg {
     max-width: 78%;
-    padding: 10px 14px;
-    font-size: 13.5px;
-    line-height: 1.5;
-    animation: slidein 0.25s ease-out;
-    letter-spacing: 0.3px;
+    padding: 9px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.45;
+    word-wrap: break-word;
+    animation: slidein 0.2s ease-out;
   }
-
   @keyframes slidein {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   .msg.them {
-    background: var(--bg-1);
-    border-left: 3px solid var(--match-color, var(--red));
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     align-self: flex-start;
+    border-bottom-left-radius: 4px;
   }
-
   .msg.me {
-    background: var(--red);
-    color: var(--bg-0);
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    color: white;
     align-self: flex-end;
-    font-weight: 600;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    border-bottom-right-radius: 4px;
   }
-
-  .typing {
-    display: flex;
-    gap: 4px;
-    padding: 12px 16px;
-    background: var(--bg-1);
-    border-left: 3px solid var(--match-color, var(--red));
-    align-self: flex-start;
-    width: fit-content;
+  .msg-time {
+    font-size: 10px;
+    opacity: 0.6;
+    margin-top: 3px;
   }
-
-  .typing span {
-    width: 6px;
-    height: 6px;
-    background: var(--muted);
-    border-radius: 50%;
-    animation: bounce 1.4s infinite;
-  }
-
-  .typing span:nth-child(2) { animation-delay: 0.15s; }
-  .typing span:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-    30% { transform: translateY(-6px); opacity: 1; }
-  }
-
   .chat-input {
-    display: flex;
-    gap: 8px;
-    padding: 14px 16px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    background: var(--bg-1);
+    display: flex; gap: 8px;
+    padding: 12px 0 18px;
+    border-top: 1px solid var(--card-border);
   }
-
   .chat-input input {
     flex: 1;
-    background: var(--bg-2);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
     padding: 11px 16px;
     color: var(--ink);
     outline: none;
-    font-size: 13px;
-    letter-spacing: 0.5px;
+    font-size: 14px;
     font-family: inherit;
   }
-
-  .chat-input input:focus { border-color: var(--red); }
-
+  .chat-input input:focus { border-color: var(--accent); }
   .chat-input button {
-    background: var(--red);
-    border: none;
-    width: 44px;
-    color: var(--bg-0);
-    font-size: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    border: none; border-radius: 50%;
+    width: 42px; height: 42px;
+    color: white; font-size: 18px;
     cursor: pointer;
-    font-weight: 900;
-    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
   }
 
-  .close-btn {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    background: transparent;
-    border: none;
+  /* ---------------- MATCH MODAL ---------------- */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+  }
+  .modal-title {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 6px;
+  }
+  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .modal-avatars {
+    display: flex; justify-content: center;
+    gap: 0;
+    margin-bottom: 24px;
+  }
+  .modal-avatar {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 4px solid var(--bg-1);
+    margin: 0 -10px;
+    background-color: var(--violet);
+    display: grid; place-items: center;
+    font-weight: 700;
+    color: white;
+    font-size: 24px;
+  }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------------- LOADING ---------------- */
+  #loading {
+    position: fixed; inset: 0;
+    background: var(--bg-0);
+    display: grid; place-items: center;
+    z-index: 200;
+  }
+  #loading.hidden { display: none; }
+  .spinner {
+    width: 38px; height: 38px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-1);
+    border: 1px solid var(--card-border);
     color: var(--ink);
-    font-size: 22px;
-    cursor: pointer;
-    padding: 4px 10px;
-    z-index: 5;
-    font-family: Impact, sans-serif;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    z-index: 150;
+    transition: transform 0.3s;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
   }
+  .toast.show { transform: translateX(-50%) translateY(0); }
 
-  .nav-link {
-    margin-top: 30px;
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-decoration: none;
-  }
-
-  .nav-link:hover { color: var(--teal); }
-
-  /* Mobile responsive */
   @media (max-width: 480px) {
-    body { padding: 14px 12px 60px; }
-    body::before, body::after { width: 40px; height: 40px; }
-    .logo { font-size: 24px; letter-spacing: 2px; }
-    .rank-pill { font-size: 10px; padding: 5px 10px; }
-    .deck { height: min(540px, calc(100vh - 220px)); max-width: 100%; }
-    .portrait-codename { font-size: clamp(56px, 18vw, 78px); letter-spacing: 4px; }
-    .portrait-icon { font-size: 44px; bottom: 10px; right: 12px; }
-    .card-realname { font-size: 17px; }
-    .card-bio { font-size: 12.5px; }
+    .brand { font-size: 44px; }
+    .auth-card { padding: 22px 18px; }
+    .deck { height: min(540px, calc(100vh - 220px)); }
     .action-btn { width: 56px; height: 56px; font-size: 22px; }
-    .actions { gap: 16px; }
-    .modal { max-height: 92vh; }
-    .match-title { font-size: 28px; letter-spacing: 4px; }
-    .match-avatar { width: 60px; height: 60px; font-size: 20px; }
-  }
-
-  @media (max-height: 700px) {
-    .deck { height: calc(100vh - 200px); }
-    .portrait-codename { font-size: clamp(48px, 14vw, 78px); }
+    .modal-title { font-size: 30px; }
+    .modal-avatar { width: 72px; height: 72px; font-size: 20px; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">VALOR<span>INK</span></div>
-  <div class="rank-pill">▲ Diamond II</div>
-</header>
+<div id="loading"><div class="spinner"></div></div>
 
-<div class="deck" id="deck">
-  <div class="empty-state" id="emptyState">
-    <h2>QUEUE EMPTY</h2>
-    <p>You've cycled the entire roster. Want to re-queue?</p>
-    <button class="refresh-btn" onclick="resetDeck()">REDEPLOY</button>
-  </div>
-</div>
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="screen" id="screen-login">
+  <div class="brand">dusk</div>
+  <div class="brand-sub">meet someone tonight.</div>
 
-<div class="actions">
-  <div class="action-col">
-    <button class="action-btn nope" onclick="swipe('left')" aria-label="Decline">✕</button>
-    <div class="action-label">Decline</div>
-  </div>
-  <div class="action-col">
-    <button class="action-btn like" onclick="swipe('right')" aria-label="Queue">⌖</button>
-    <div class="action-label">Queue Up</div>
-  </div>
-</div>
+  <div class="auth-card">
+    <div id="demoBanner" class="demo-banner" style="display:none;">
+      <b>Demo mode.</b> Firebase isn't configured yet — login is simulated and data lives in this browser only.
+      Set up <code>firebase-config.js</code> to enable real logins. See README.
+    </div>
 
-<a class="nav-link" href="kindling.html">← try Kindling (general)</a>
+    <div class="auth-title" id="authTitle">Welcome back</div>
+    <div class="auth-subtitle" id="authSub">Sign in to start swiping</div>
 
-<div class="modal-backdrop" id="modal">
-  <div class="modal" id="modalInner">
-    <button class="close-btn" onclick="closeModal()">✕</button>
-    <div class="match-header">
-      <div class="match-title">DUO LOCKED</div>
-      <div class="match-sub" id="matchSub"></div>
-      <div class="match-photos">
-        <div class="match-avatar" style="background: linear-gradient(135deg, #fa4454, #bd3944);">LO</div>
-        <div class="match-avatar" id="matchAvatar"></div>
+    <button class="btn-google" onclick="window.signInGoogle()">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="divider">OR</div>
+
+    <div id="loginForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@somewhere.com" />
       </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary" onclick="window.signInEmail()">Sign In</button>
+      <div class="err" id="loginErr"></div>
+      <div class="auth-switch">New here? <a onclick="window.toggleAuth(true)">Create an account</a></div>
     </div>
-    <div class="chat-area" id="chatArea"></div>
-    <div class="chat-input">
-      <input type="text" id="chatInput" placeholder="Message your duo..." autocomplete="off" />
-      <button onclick="sendMessage()">➤</button>
+
+    <div id="signupForm" style="display:none;">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="you@somewhere.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPassword" placeholder="at least 6 characters" />
+      </div>
+      <button class="btn-primary" onclick="window.signUpEmail()">Create Account</button>
+      <div class="err" id="signupErr"></div>
+      <div class="auth-switch">Have an account? <a onclick="window.toggleAuth(false)">Sign in</a></div>
     </div>
   </div>
 </div>
 
-<script>
-  const agents = [
-    {
-      codename: "JETT",
-      realname: "Sunwoo Han",
-      origin: "South Korea",
-      role: "Duelist",
-      rank: "Radiant",
-      color: "#7CC4D6",
-      colorDark: "#3a8a9e",
-      icon: "🌪",
-      bio: "I'm in and out before you blink. Don't try to keep up — try to be useful. Also: if you can't aim, don't queue with me. I'll carry, but I want a smile out of it.",
-      tags: ["operator god", "blink dagger", "no scope only"],
-      chat: [
-        "you better aim better than you flirt.",
-        "yeah, yeah. tell me what rank you actually peak.",
-        "I dive first. you watch my back. simple."
-      ]
-    },
-    {
-      codename: "SAGE",
-      realname: "Ling Ying Wei",
-      origin: "China",
-      role: "Sentinel",
-      rank: "Immortal",
-      color: "#8FE0B8",
-      colorDark: "#3d8c63",
-      icon: "❅",
-      bio: "I keep my team alive. I expect the same energy from a partner. I'm soft until I'm not. I read tea leaves, I read minds, and I read entry frags faster than your duelist.",
-      tags: ["res god", "wall king", "patient"],
-      chat: [
-        "hello. you played safe last round. I like that.",
-        "be honest. did you queue with me for the heals.",
-        "I have tea brewing. talk to me while it steeps."
-      ]
-    },
-    {
-      codename: "VIPER",
-      realname: "Sabine Callas",
-      origin: "United States",
-      role: "Controller",
-      rank: "Immortal",
-      color: "#4a7d4a",
-      colorDark: "#2a5530",
-      icon: "☣",
-      bio: "I'm a chemist. I don't do small talk and I don't do losing. If you can't push through my smoke, you don't deserve to follow me into it. Earn the date. Earn everything.",
-      tags: ["lineup gremlin", "post-plant queen", "cold"],
-      chat: [
-        "convince me you're worth my fuel.",
-        "I don't repeat myself. so listen.",
-        "you flinch in my smoke and we're done."
-      ]
-    },
-    {
-      codename: "REYNA",
-      realname: "Zyanya Mondragón",
-      origin: "Mexico",
-      role: "Duelist",
-      rank: "Radiant",
-      color: "#A06FD8",
-      colorDark: "#5a3580",
-      icon: "♛",
-      bio: "Mi amor — I feed on kills and compliments. Don't bring me flowers, bring me frags. I go god-mode when I'm in the mood, and I'm always in the mood when someone's watching.",
-      tags: ["solo queue terror", "dismiss pro", "vampiric"],
-      chat: [
-        "mi cielo. you swiped on a duelist. brave.",
-        "feed me a soul. I'll feed you back.",
-        "I want someone who watches me clutch and doesn't get jealous."
-      ]
-    },
-    {
-      codename: "KILLJOY",
-      realname: "Klara Böhringer",
-      origin: "Germany",
-      role: "Sentinel",
-      rank: "Immortal",
-      color: "#F5C13E",
-      colorDark: "#a68420",
-      icon: "⚙",
-      bio: "Engineer. I built my first turret at eleven. I run two monitors, a soldering iron station, and a heart that, statistically speaking, has room for exactly one more. Don't break it.",
-      tags: ["nanoswarm enjoyer", "lockdown ult", "nerd"],
-      chat: [
-        "you saw my profile. you swiped. very smart of you.",
-        "Hallo. I am running diagnostics on this conversation.",
-        "I can build you something. for the right person. mm."
-      ]
-    },
-    {
-      codename: "NEON",
-      realname: "Tala Valdez",
-      origin: "Philippines",
-      role: "Duelist",
-      rank: "Diamond",
-      color: "#5DC3F5",
-      colorDark: "#2a6f96",
-      icon: "⚡",
-      bio: "I run faster than your aim. College kid by day, lightning rod by night. I will absolutely outpeek you and then ask if you want boba after. Kuya, I'm a lot. You'll love it.",
-      tags: ["fastest entry", "stun queen", "chaotic"],
-      chat: [
-        "OH MY GOD okay you matched with me hi hi hi",
-        "wanna duo right now? right now right now?",
-        "I'm caffeinated. you've been warned, kuya."
-      ]
-    },
-    {
-      codename: "RAZE",
-      realname: "Tayane Alves",
-      origin: "Brazil",
-      role: "Duelist",
-      rank: "Immortal",
-      color: "#F5934A",
-      colorDark: "#a65f25",
-      icon: "✸",
-      bio: "Boom. Boom. Bigger boom. I come from São Paulo and I make everything louder. Bring me to a party, I'll start one. Bring me into a site, I'll end it. Same energy either way.",
-      tags: ["satchel jumper", "showstopper", "festa girl"],
-      chat: [
-        "oi gato! you ready to make some noise?",
-        "I just satchel'd onto your profile. literally.",
-        "festa tonight at my place. you bring the drinks."
-      ]
-    },
-    {
-      codename: "FADE",
-      realname: "Hazal Demir",
-      origin: "Turkey",
-      role: "Initiator",
-      rank: "Immortal",
-      color: "#5e4d6e",
-      colorDark: "#332840",
-      icon: "◐",
-      bio: "I see your nightmares. The ones you don't admit to. The ones with your ex still in them. Don't worry — I won't tell. I'll just know. Meet me in your sleep.",
-      tags: ["intel queen", "haunt clutch", "gothic"],
-      chat: [
-        "I've already seen this conversation in a dream.",
-        "tell me what you're afraid of. start small.",
-        "you sleep with the light on. I knew before I asked."
-      ]
-    }
-  ];
+<!-- ============ ONBOARDING ============ -->
+<div class="screen" id="screen-onboard">
+  <div class="brand" style="font-size: 40px;">profile</div>
+  <div class="brand-sub">people swipe on what you put here. don't make it boring.</div>
 
-  let deck = shuffle([...agents]);
-  let currentMatch = null;
-  let chatTurn = 0;
+  <div class="auth-card">
+    <div class="field">
+      <label>Display name</label>
+      <input type="text" id="onbName" placeholder="What should we call you?" />
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="onbAge" min="18" max="120" placeholder="18+" />
+    </div>
+    <div class="field">
+      <label>Photo URL (optional)</label>
+      <input type="url" id="onbPhoto" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>Bio</label>
+      <textarea id="onbBio" placeholder="A few sentences. Be specific. Boring bios get unmatched."></textarea>
+    </div>
+    <div class="field">
+      <label>Tags (comma separated)</label>
+      <input type="text" id="onbTags" placeholder="hiking, jazz, late nights" />
+    </div>
+    <button class="btn-primary" onclick="window.saveProfile()">Save & Start Swiping</button>
+    <div class="err" id="onbErr"></div>
+  </div>
+</div>
 
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+<!-- ============ MAIN APP (DECK) ============ -->
+<div class="screen" id="screen-app">
+  <div class="topbar">
+    <div class="logo-small">dusk</div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="window.showScreen('matches')" title="Matches">
+        💬<span class="badge" id="matchBadge" style="display:none;">0</span>
+      </button>
+      <button class="icon-btn" onclick="window.showScreen('onboard')" title="Edit Profile">✎</button>
+      <button class="icon-btn" onclick="window.signOut()" title="Sign out">⏻</button>
+    </div>
+  </div>
+
+  <div class="deck" id="deck">
+    <div class="empty-state" id="emptyState">
+      <h2>That's everyone for now</h2>
+      <p>You've seen every soul nearby. Check back later when more people join, or open up your matches.</p>
+      <button class="btn-ghost" style="margin-top:16px;" onclick="window.loadDeck()">Refresh</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn nope" onclick="window.swipeAction('left')" aria-label="Pass">✕</button>
+    <button class="action-btn like" onclick="window.swipeAction('right')" aria-label="Like">♥</button>
+  </div>
+</div>
+
+<!-- ============ MATCHES LIST ============ -->
+<div class="screen" id="screen-matches">
+  <div class="topbar">
+    <button class="chat-back" onclick="window.showScreen('app')">←</button>
+    <div class="logo-small">matches</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div id="matchesList"></div>
+  <div id="matchesEmpty" style="text-align:center; color:var(--muted); padding:40px 20px; font-size:14px; display:none;">
+    No matches yet — keep swiping.
+  </div>
+</div>
+
+<!-- ============ CHAT SCREEN ============ -->
+<div class="screen" id="screen-chat">
+  <div class="topbar" style="margin-bottom:0;">
+    <button class="chat-back" onclick="window.showScreen('matches')">←</button>
+    <div class="logo-small">chat</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div class="chat-header">
+    <div class="match-avatar" id="chatAvatar"></div>
+    <div>
+      <div class="chat-header-name" id="chatName"></div>
+      <div class="chat-header-sub" id="chatSub"></div>
+    </div>
+  </div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Say something..." autocomplete="off" />
+    <button onclick="window.sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- ============ MATCH MODAL ============ -->
+<div class="modal-backdrop" id="matchModal">
+  <div class="modal">
+    <div class="modal-title">It's a match.</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="modal-avatars">
+      <div class="modal-avatar" id="modalMyAvatar"></div>
+      <div class="modal-avatar" id="modalTheirAvatar"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="window.openMatchChat()">Say hi</button>
+      <button class="btn-ghost" onclick="window.closeMatchModal()">Keep swiping</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ APP LOGIC ============ -->
+<script type="module">
+  // Firebase modular SDK (v10) — loaded from CDN
+  let firebaseConfig = null;
+  let useFirebase = false;
+  let auth, db, app;
+  let onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOutFn, doc, getDoc, setDoc, collection, query, where, getDocs,
+      addDoc, onSnapshot, orderBy, serverTimestamp, updateDoc;
+
+  // Try to load firebase-config.js
+  try {
+    const cfg = await import('./firebase-config.js');
+    if (cfg.firebaseConfig && cfg.firebaseConfig.apiKey && !cfg.firebaseConfig.apiKey.startsWith('YOUR_')) {
+      firebaseConfig = cfg.firebaseConfig;
+      useFirebase = true;
     }
-    return arr;
+  } catch (e) {
+    console.log('[Dusk] firebase-config.js not found — running demo mode.');
   }
 
-  function el(tag, cls, html) {
-    const e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (html !== undefined) e.innerHTML = html;
-    return e;
+  if (useFirebase) {
+    const fbApp = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
+    const fbAuth = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
+    const fbStore = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+    app = fbApp.initializeApp(firebaseConfig);
+    auth = fbAuth.getAuth(app);
+    db = fbStore.getFirestore(app);
+    onAuthStateChanged = fbAuth.onAuthStateChanged;
+    signInWithPopup = fbAuth.signInWithPopup;
+    GoogleAuthProvider = fbAuth.GoogleAuthProvider;
+    createUserWithEmailAndPassword = fbAuth.createUserWithEmailAndPassword;
+    signInWithEmailAndPassword = fbAuth.signInWithEmailAndPassword;
+    signOutFn = fbAuth.signOut;
+    doc = fbStore.doc; getDoc = fbStore.getDoc; setDoc = fbStore.setDoc;
+    collection = fbStore.collection; query = fbStore.query; where = fbStore.where;
+    getDocs = fbStore.getDocs; addDoc = fbStore.addDoc;
+    onSnapshot = fbStore.onSnapshot; orderBy = fbStore.orderBy;
+    serverTimestamp = fbStore.serverTimestamp; updateDoc = fbStore.updateDoc;
+  } else {
+    document.getElementById('demoBanner').style.display = 'block';
+  }
+
+  // ---------- State ----------
+  let currentUser = null;
+  let currentProfile = null;
+  let deck = [];
+  let matches = [];
+  let activeChat = null;
+  let chatUnsub = null;
+
+  // ---------- Demo storage ----------
+  const DEMO_KEY = 'dusk_demo_v1';
+  const demoDB = JSON.parse(localStorage.getItem(DEMO_KEY) || '{"users":{},"likes":{},"matches":{},"messages":{}}');
+  const saveDemo = () => localStorage.setItem(DEMO_KEY, JSON.stringify(demoDB));
+
+  // Seed demo with a few fake users on first run
+  if (!useFirebase && Object.keys(demoDB.users).length === 0) {
+    const seed = [
+      { uid: 'seed-1', displayName: 'Mira Castellanos', age: 28, photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600', bio: "Art conservator. I smell faintly of turpentine and I'm okay with that.", tags: ['museums','rainy walks','espresso'] },
+      { uid: 'seed-2', displayName: 'Yuki Brennan', age: 26, photoURL: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600', bio: "Jazz pianist, basement bar on 4th. Order anything but the house wine.", tags: ['late nights','vinyl','ramen'] },
+      { uid: 'seed-3', displayName: 'Aisha Volkov', age: 30, photoURL: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600', bio: "Paramedic. I read Camus on lunch and I've seen worse than your texts.", tags: ['philosophy','early mornings','black coffee'] },
+      { uid: 'seed-4', displayName: 'Cleo Marchetti', age: 27, photoURL: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600', bio: "Tattoo artist in the warehouse district. I have a cat named Saint.", tags: ['ink','whiskey','old westerns'] },
+      { uid: 'seed-5', displayName: 'Ren Ashworth', age: 29, photoURL: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', bio: "I write quests for games you've heard of. I live in a hoodie.", tags: ['RPGs','sundays','ramen'] },
+    ];
+    seed.forEach(u => demoDB.users[u.uid] = u);
+    saveDemo();
+  }
+
+  // ---------- UI ----------
+  const $ = id => document.getElementById(id);
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $('screen-' + name).classList.add('active');
+    if (name === 'matches') renderMatches();
+  }
+
+  function hideLoading() { $('loading').classList.add('hidden'); }
+
+  function toast(msg, ms = 2500) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  function avatarBG(profile) {
+    if (profile?.photoURL) return `url('${profile.photoURL}')`;
+    return '';
+  }
+
+  function avatarInitial(profile) {
+    return (profile?.displayName || '?').slice(0, 1).toUpperCase();
+  }
+
+  function setAvatar(el, profile) {
+    if (profile?.photoURL) {
+      el.style.backgroundImage = `url('${profile.photoURL}')`;
+      el.textContent = '';
+    } else {
+      el.style.backgroundImage = '';
+      el.textContent = avatarInitial(profile);
+    }
+  }
+
+  // ---------- Auth ----------
+  window.toggleAuth = (toSignup) => {
+    $('loginForm').style.display = toSignup ? 'none' : 'block';
+    $('signupForm').style.display = toSignup ? 'block' : 'none';
+    $('authTitle').textContent = toSignup ? 'Create account' : 'Welcome back';
+    $('authSub').textContent = toSignup ? 'Tell us about you in 30 seconds' : 'Sign in to start swiping';
+  };
+
+  window.signInGoogle = async () => {
+    if (!useFirebase) {
+      // Demo: pretend google login as a random demo user
+      const uid = 'demo-' + Math.random().toString(36).slice(2, 10);
+      handleAuth({ uid, displayName: 'You', email: 'demo@dusk.local', photoURL: '' });
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error(e);
+      showErr('loginErr', e.message);
+    }
+  };
+
+  window.signInEmail = async () => {
+    const email = $('loginEmail').value.trim();
+    const pw = $('loginPassword').value;
+    if (!email || !pw) { showErr('loginErr', 'Enter email and password.'); return; }
+    if (!useFirebase) {
+      const uid = 'demo-' + btoa(email).slice(0, 12);
+      handleAuth({ uid, displayName: email.split('@')[0], email });
+      return;
+    }
+    try {
+      await signInWithEmailAndPassword(auth, email, pw);
+    } catch (e) { showErr('loginErr', friendlyErr(e)); }
+  };
+
+  window.signUpEmail = async () => {
+    const email = $('signupEmail').value.trim();
+    const pw = $('signupPassword').value;
+    if (!email || pw.length < 6) { showErr('signupErr', 'Password needs 6+ characters.'); return; }
+    if (!useFirebase) {
+      const uid = 'demo-' + btoa(email).slice(0, 12);
+      handleAuth({ uid, displayName: email.split('@')[0], email });
+      return;
+    }
+    try {
+      await createUserWithEmailAndPassword(auth, email, pw);
+    } catch (e) { showErr('signupErr', friendlyErr(e)); }
+  };
+
+  window.signOut = async () => {
+    if (useFirebase) await signOutFn(auth);
+    else handleAuth(null);
+  };
+
+  function friendlyErr(e) {
+    const c = e.code || '';
+    if (c.includes('user-not-found')) return 'No account with that email.';
+    if (c.includes('wrong-password')) return 'Wrong password.';
+    if (c.includes('email-already')) return 'Email already in use.';
+    if (c.includes('invalid-email')) return 'Invalid email.';
+    if (c.includes('weak-password')) return 'Password too weak.';
+    return e.message || 'Something went wrong.';
+  }
+
+  function showErr(id, msg) {
+    const el = $(id);
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  // ---------- Auth handler ----------
+  async function handleAuth(user) {
+    currentUser = user;
+    if (!user) {
+      currentProfile = null;
+      showScreen('login');
+      return;
+    }
+    // Load profile
+    const profile = await getProfile(user.uid);
+    if (!profile) {
+      $('onbName').value = user.displayName || '';
+      showScreen('onboard');
+    } else {
+      currentProfile = profile;
+      await loadDeck();
+      await loadMatches();
+      showScreen('app');
+    }
+  }
+
+  if (useFirebase) {
+    onAuthStateChanged(auth, async (user) => {
+      hideLoading();
+      if (user) {
+        await handleAuth({
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL
+        });
+      } else {
+        handleAuth(null);
+      }
+    });
+  } else {
+    // Restore demo session
+    const sessUid = sessionStorage.getItem('dusk_sess');
+    if (sessUid && demoDB.users[sessUid]) {
+      const u = demoDB.users[sessUid];
+      handleAuth({ uid: sessUid, displayName: u.displayName, email: u.email || '' });
+    } else {
+      handleAuth(null);
+    }
+    hideLoading();
+  }
+
+  // ---------- Profile ----------
+  async function getProfile(uid) {
+    if (useFirebase) {
+      const snap = await getDoc(doc(db, 'users', uid));
+      return snap.exists() ? snap.data() : null;
+    }
+    return demoDB.users[uid] || null;
+  }
+
+  window.saveProfile = async () => {
+    const name = $('onbName').value.trim();
+    const age = parseInt($('onbAge').value);
+    const photo = $('onbPhoto').value.trim();
+    const bio = $('onbBio').value.trim();
+    const tagStr = $('onbTags').value.trim();
+    if (!name || !age || age < 18 || !bio) {
+      showErr('onbErr', 'Fill out name, age (18+), and bio.');
+      return;
+    }
+    const profile = {
+      uid: currentUser.uid,
+      displayName: name,
+      age,
+      photoURL: photo,
+      bio,
+      tags: tagStr ? tagStr.split(',').map(t => t.trim()).filter(Boolean) : [],
+      createdAt: Date.now()
+    };
+    if (useFirebase) {
+      await setDoc(doc(db, 'users', currentUser.uid), profile);
+    } else {
+      demoDB.users[currentUser.uid] = profile;
+      sessionStorage.setItem('dusk_sess', currentUser.uid);
+      saveDemo();
+    }
+    currentProfile = profile;
+    await loadDeck();
+    await loadMatches();
+    showScreen('app');
+    toast('Profile saved — happy hunting');
+  };
+
+  // ---------- Deck ----------
+  window.loadDeck = async () => {
+    let users;
+    if (useFirebase) {
+      const snap = await getDocs(collection(db, 'users'));
+      users = snap.docs.map(d => d.data());
+    } else {
+      users = Object.values(demoDB.users);
+    }
+    // Filter out self and already-swiped
+    const seen = await getSwiped(currentUser.uid);
+    deck = users.filter(u => u.uid !== currentUser.uid && !seen.has(u.uid));
+    deck.sort(() => Math.random() - 0.5);
+    renderDeck();
+  };
+
+  async function getSwiped(uid) {
+    if (useFirebase) {
+      const snap = await getDocs(collection(db, 'likes', uid, 'sent'));
+      return new Set(snap.docs.map(d => d.id));
+    }
+    return new Set(Object.keys(demoDB.likes[uid] || {}));
   }
 
   function renderDeck() {
-    const container = document.getElementById('deck');
+    const container = $('deck');
     container.querySelectorAll('.card').forEach(c => c.remove());
-
-    if (deck.length === 0) {
-      document.getElementById('emptyState').style.display = 'flex';
-      return;
-    }
-    document.getElementById('emptyState').style.display = 'none';
+    if (deck.length === 0) { $('emptyState').style.display = 'flex'; return; }
+    $('emptyState').style.display = 'none';
 
     const visible = deck.slice(0, 3).reverse();
     visible.forEach((p, idx) => {
       const realIdx = visible.length - 1 - idx;
-      const card = el('div', 'card');
+      const card = document.createElement('div');
+      card.className = 'card';
       card.style.transform = `scale(${1 - realIdx * 0.04}) translateY(${realIdx * 12}px)`;
       card.style.zIndex = 10 - realIdx;
       card.dataset.idx = realIdx;
-      card.style.setProperty('--portrait-bg', `linear-gradient(135deg, ${p.color} 0%, ${p.colorDark} 100%)`);
+
+      const photoHtml = p.photoURL
+        ? `<div class="card-photo" style="background-image:url('${p.photoURL}')"></div>`
+        : `<div class="card-photo"><div class="photo-fallback">${avatarInitial(p)}</div></div>`;
 
       card.innerHTML = `
-        <div class="card-portrait">
-          <div class="portrait-role">${p.role}</div>
-          <div class="portrait-codename">${p.codename}</div>
-          <div class="portrait-icon">${p.icon}</div>
-          <div class="stamp like">QUEUE</div>
-          <div class="stamp nope">DECLINE</div>
-        </div>
+        ${photoHtml}
         <div class="card-info">
-          <div class="card-name-row">
-            <div class="card-realname">${p.realname}</div>
-            <div class="card-rank">▲ ${p.rank}</div>
-          </div>
-          <div class="card-origin">⌖ ${p.origin}</div>
-          <div class="card-bio">${p.bio}</div>
-          <div class="card-tags">
-            ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-          </div>
+          <div class="card-name">${escapeHtml(p.displayName)} <span class="card-age">${p.age}</span></div>
+          <div class="card-bio">${escapeHtml(p.bio)}</div>
+          <div class="card-tags">${(p.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
         </div>
+        <div class="stamp like">LIKE</div>
+        <div class="stamp nope">NOPE</div>
       `;
-
       if (realIdx === 0) attachDrag(card);
       container.appendChild(card);
     });
   }
 
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
   function attachDrag(card) {
-    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
-    const likeStamp = card.querySelector('.stamp.like');
-    const nopeStamp = card.querySelector('.stamp.nope');
-
-    const start = (x, y) => {
-      startX = x; startY = y; dragging = true;
-      card.classList.add('dragging');
-    };
-
-    const move = (x, y) => {
+    let sx=0, sy=0, dx=0, dy=0, dragging=false;
+    const like = card.querySelector('.stamp.like');
+    const nope = card.querySelector('.stamp.nope');
+    const start = (x,y) => { sx=x; sy=y; dragging=true; card.classList.add('dragging'); };
+    const move = (x,y) => {
       if (!dragging) return;
-      dx = x - startX; dy = y - startY;
-      const rot = dx * 0.08;
-      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
-      likeStamp.style.opacity = Math.max(0, Math.min(1, dx / 100));
-      nopeStamp.style.opacity = Math.max(0, Math.min(1, -dx / 100));
+      dx = x - sx; dy = y - sy;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx*0.08}deg)`;
+      like.style.opacity = Math.max(0, Math.min(1, dx/100));
+      nope.style.opacity = Math.max(0, Math.min(1, -dx/100));
     };
-
     const end = () => {
       if (!dragging) return;
       dragging = false;
       card.classList.remove('dragging');
       if (Math.abs(dx) > 100) {
-        swipe(dx > 0 ? 'right' : 'left', card);
+        window.swipeAction(dx > 0 ? 'right' : 'left', card);
       } else {
         card.style.transform = '';
-        likeStamp.style.opacity = 0;
-        nopeStamp.style.opacity = 0;
+        like.style.opacity = 0; nope.style.opacity = 0;
       }
-      dx = 0; dy = 0;
+      dx=0; dy=0;
     };
-
     card.addEventListener('pointerdown', e => { card.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
     card.addEventListener('pointermove', e => move(e.clientX, e.clientY));
     card.addEventListener('pointerup', end);
     card.addEventListener('pointercancel', end);
   }
 
-  function swipe(direction, cardEl) {
-    if (deck.length === 0) return;
+  window.swipeAction = async (dir, cardEl) => {
+    if (!deck.length) return;
     const top = cardEl || document.querySelector('.card[data-idx="0"]');
     if (!top) return;
-
-    const xOff = direction === 'right' ? 600 : -600;
-    const rot = direction === 'right' ? 25 : -25;
-    top.style.transform = `translate(${xOff}px, -40px) rotate(${rot}deg)`;
+    const xOff = dir === 'right' ? 600 : -600;
+    top.style.transform = `translate(${xOff}px, -40px) rotate(${dir==='right'?25:-25}deg)`;
     top.style.opacity = '0';
 
     const swiped = deck.shift();
+    const liked = dir === 'right';
 
-    setTimeout(() => {
+    await recordSwipe(currentUser.uid, swiped.uid, liked);
+
+    setTimeout(async () => {
       renderDeck();
-      if (direction === 'right' && Math.random() > 0.15) {
-        openMatch(swiped);
+      if (liked) {
+        const mutual = await checkMutual(currentUser.uid, swiped.uid);
+        if (mutual) {
+          await createMatch(currentUser.uid, swiped.uid);
+          openMatchModal(swiped);
+          await loadMatches();
+        }
       }
     }, 320);
-  }
+  };
 
-  function openMatch(profile) {
-    currentMatch = profile;
-    chatTurn = 0;
-    document.getElementById('matchSub').textContent = `You and ${profile.codename} are queued together.`;
-    const av = document.getElementById('matchAvatar');
-    av.textContent = profile.codename.slice(0, 3);
-    av.style.background = `linear-gradient(135deg, ${profile.color}, ${profile.colorDark})`;
-
-    document.getElementById('modalInner').style.setProperty('--match-color', profile.color);
-    document.getElementById('chatArea').innerHTML = '';
-    document.getElementById('modal').classList.add('show');
-
-    setTimeout(() => themTypes(profile.chat[0]), 700);
-  }
-
-  function themTypes(text) {
-    const chat = document.getElementById('chatArea');
-    const typing = el('div', 'typing', '<span></span><span></span><span></span>');
-    chat.appendChild(typing);
-    chat.scrollTop = chat.scrollHeight;
-
-    setTimeout(() => {
-      typing.remove();
-      const m = el('div', 'msg them', text);
-      chat.appendChild(m);
-      chat.scrollTop = chat.scrollHeight;
-    }, 900 + Math.random() * 800);
-  }
-
-  function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-
-    const chat = document.getElementById('chatArea');
-    const m = el('div', 'msg me', text);
-    chat.appendChild(m);
-    chat.scrollTop = chat.scrollHeight;
-
-    chatTurn++;
-    if (chatTurn < currentMatch.chat.length) {
-      setTimeout(() => themTypes(currentMatch.chat[chatTurn]), 700);
+  async function recordSwipe(meUid, themUid, liked) {
+    if (useFirebase) {
+      await setDoc(doc(db, 'likes', meUid, 'sent', themUid), { liked, ts: serverTimestamp() });
     } else {
-      setTimeout(() => themTypes(generateReply(text)), 700);
+      demoDB.likes[meUid] = demoDB.likes[meUid] || {};
+      demoDB.likes[meUid][themUid] = { liked, ts: Date.now() };
+      // Seeded users randomly like you back ~60%
+      if (liked && themUid.startsWith('seed-') && Math.random() < 0.6) {
+        demoDB.likes[themUid] = demoDB.likes[themUid] || {};
+        demoDB.likes[themUid][meUid] = { liked: true, ts: Date.now() };
+      }
+      saveDemo();
     }
   }
 
-  function generateReply(userText) {
-    const t = userText.toLowerCase();
-    const code = currentMatch.codename;
+  async function checkMutual(meUid, themUid) {
+    if (useFirebase) {
+      const snap = await getDoc(doc(db, 'likes', themUid, 'sent', meUid));
+      return snap.exists() && snap.data().liked === true;
+    }
+    return !!(demoDB.likes[themUid]?.[meUid]?.liked);
+  }
 
-    // Per-agent flavored replies
-    const flavors = {
-      JETT: [
-        "yeah yeah. less talking, more aiming.",
-        "you're cute. doesn't change my K/D.",
-        "I'm already on B site. catch up."
-      ],
-      SAGE: [
-        "be patient. I'll come find you.",
-        "you talk softly. I like that.",
-        "stay alive for me. I'll heal the rest."
-      ],
-      VIPER: [
-        "interesting. keep talking.",
-        "you haven't lost me yet. that's something.",
-        "I don't reward effort. only results."
-      ],
-      REYNA: [
-        "mmm. say it again, mi amor.",
-        "queue with me. I want to watch you watch me.",
-        "you're sweet. I'll keep you, for now."
-      ],
-      KILLJOY: [
-        "I am calculating compatibility. results: very promising.",
-        "ja, that was clever. say something else.",
-        "you have my attention. that's rare. use it well."
-      ],
-      NEON: [
-        "OH MY GOD okay okay tell me more!!",
-        "you're funny!! kuya are you free saturday??",
-        "lol I'm vibrating. that's normal for me."
-      ],
-      RAZE: [
-        "kkkk you're funny gato!",
-        "BOOM. that's me reacting to your message.",
-        "samba lessons. my place. eight."
-      ],
-      FADE: [
-        "I knew you'd say that.",
-        "you're hiding something. it's fine. I'll find it.",
-        "close your eyes. I'll be there."
-      ]
+  function matchId(a, b) {
+    return [a, b].sort().join('_');
+  }
+
+  async function createMatch(a, b) {
+    const mid = matchId(a, b);
+    if (useFirebase) {
+      await setDoc(doc(db, 'matches', mid), {
+        users: [a, b].sort(),
+        createdAt: serverTimestamp(),
+        lastMessage: null
+      });
+    } else {
+      demoDB.matches[mid] = { users: [a, b].sort(), createdAt: Date.now(), lastMessage: null };
+      saveDemo();
+    }
+  }
+
+  // ---------- Matches list ----------
+  async function loadMatches() {
+    if (useFirebase) {
+      const q = query(collection(db, 'matches'), where('users', 'array-contains', currentUser.uid));
+      const snap = await getDocs(q);
+      matches = await Promise.all(snap.docs.map(async d => {
+        const data = d.data();
+        const otherUid = data.users.find(u => u !== currentUser.uid);
+        const profile = await getProfile(otherUid);
+        return { id: d.id, profile, lastMessage: data.lastMessage };
+      }));
+    } else {
+      matches = [];
+      for (const [mid, m] of Object.entries(demoDB.matches)) {
+        if (m.users.includes(currentUser.uid)) {
+          const otherUid = m.users.find(u => u !== currentUser.uid);
+          const profile = demoDB.users[otherUid];
+          if (profile) matches.push({ id: mid, profile, lastMessage: m.lastMessage });
+        }
+      }
+    }
+    const badge = $('matchBadge');
+    if (matches.length) { badge.textContent = matches.length; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function renderMatches() {
+    const list = $('matchesList');
+    list.innerHTML = '';
+    if (matches.length === 0) { $('matchesEmpty').style.display = 'block'; return; }
+    $('matchesEmpty').style.display = 'none';
+    matches.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'match-row';
+      const av = document.createElement('div');
+      av.className = 'match-avatar';
+      setAvatar(av, m.profile);
+      const meta = document.createElement('div');
+      meta.className = 'match-meta';
+      meta.innerHTML = `<div class="match-meta-name">${escapeHtml(m.profile.displayName)}</div>
+        <div class="match-meta-preview">${escapeHtml(m.lastMessage?.text || 'Say hi 👋')}</div>`;
+      row.appendChild(av); row.appendChild(meta);
+      row.onclick = () => openChat(m);
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- Chat ----------
+  function openChat(m) {
+    activeChat = m;
+    setAvatar($('chatAvatar'), m.profile);
+    $('chatName').textContent = m.profile.displayName;
+    $('chatSub').textContent = `${m.profile.age || ''} · matched`;
+    $('chatArea').innerHTML = '';
+    showScreen('chat');
+    subscribeMessages(m);
+  }
+
+  function subscribeMessages(m) {
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    if (useFirebase) {
+      const q = query(collection(db, 'matches', m.id, 'messages'), orderBy('ts', 'asc'));
+      chatUnsub = onSnapshot(q, snap => {
+        const area = $('chatArea');
+        area.innerHTML = '';
+        snap.forEach(d => renderMsg(d.data(), area));
+        area.scrollTop = area.scrollHeight;
+      });
+    } else {
+      const msgs = demoDB.messages[m.id] || [];
+      const area = $('chatArea');
+      area.innerHTML = '';
+      msgs.forEach(msg => renderMsg(msg, area));
+      area.scrollTop = area.scrollHeight;
+    }
+  }
+
+  function renderMsg(msg, area) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + (msg.from === currentUser.uid ? 'me' : 'them');
+    el.textContent = msg.text;
+    area.appendChild(el);
+  }
+
+  window.sendChat = async () => {
+    const input = $('chatInput');
+    const text = input.value.trim();
+    if (!text || !activeChat) return;
+    input.value = '';
+    const msg = { from: currentUser.uid, text, ts: useFirebase ? serverTimestamp() : Date.now() };
+    if (useFirebase) {
+      await addDoc(collection(db, 'matches', activeChat.id, 'messages'), msg);
+      await updateDoc(doc(db, 'matches', activeChat.id), { lastMessage: { text, from: currentUser.uid, ts: Date.now() } });
+    } else {
+      demoDB.messages[activeChat.id] = demoDB.messages[activeChat.id] || [];
+      demoDB.messages[activeChat.id].push(msg);
+      demoDB.matches[activeChat.id].lastMessage = { text, from: currentUser.uid, ts: Date.now() };
+      saveDemo();
+      subscribeMessages(activeChat);
+      // Simulate other user reply in demo mode
+      if (activeChat.profile.uid.startsWith('seed-')) {
+        setTimeout(() => {
+          const reply = generateReply(text, activeChat.profile);
+          demoDB.messages[activeChat.id].push({ from: activeChat.profile.uid, text: reply, ts: Date.now() });
+          demoDB.matches[activeChat.id].lastMessage = { text: reply, from: activeChat.profile.uid, ts: Date.now() };
+          saveDemo();
+          subscribeMessages(activeChat);
+        }, 900 + Math.random() * 1200);
+      }
+    }
+  };
+
+  function generateReply(text, profile) {
+    const t = text.toLowerCase();
+    if (/\?$/.test(t)) return "ask me in person.";
+    if (/hi|hey|hello/.test(t)) return `hi yourself. took you long enough.`;
+    if (/coffee|drink|dinner|date/.test(t)) return `okay. when. and don't pick somewhere bad.`;
+    if (/cute|hot|pretty/.test(t)) return `careful. I bruise easy.`;
+    const generic = ["tell me more.", "mm. keep going.", "okay I like you. don't make me regret it.", "say that to my face on saturday."];
+    return generic[Math.floor(Math.random() * generic.length)];
+  }
+
+  // ---------- Match modal ----------
+  let pendingMatchProfile = null;
+  function openMatchModal(profile) {
+    pendingMatchProfile = profile;
+    $('modalSub').textContent = `You and ${profile.displayName.split(' ')[0]} liked each other.`;
+    setAvatar($('modalMyAvatar'), currentProfile);
+    setAvatar($('modalTheirAvatar'), profile);
+    $('matchModal').classList.add('show');
+  }
+  window.closeMatchModal = () => { $('matchModal').classList.remove('show'); pendingMatchProfile = null; };
+  window.openMatchChat = async () => {
+    if (!pendingMatchProfile) return;
+    closeMatchModal();
+    await loadMatches();
+    const m = matches.find(x => x.profile.uid === pendingMatchProfile.uid);
+    if (m) openChat(m);
+  };
+
+  // Demo sign-out helper handles state reset
+  if (!useFirebase) {
+    window.signOut = () => {
+      sessionStorage.removeItem('dusk_sess');
+      handleAuth(null);
     };
-
-    if (/\?$/.test(t)) {
-      const qs = ["ask me when I'm off comms.", "depends what I get out of it.", "you first.", "make me want to answer."];
-      return qs[Math.floor(Math.random() * qs.length)];
-    }
-    if (/queue|duo|play|game|match/.test(t)) return `okay. let's run it. don't throw.`;
-    if (/cute|hot|pretty|beautiful|gorgeous/.test(t)) return `careful. flattery works on me about thirty percent of the time.`;
-    if (/love|miss/.test(t)) return `slow down. we're not on the same comms yet.`;
-    if (/rank|elo/.test(t)) return `peak ${currentMatch.rank}. obviously.`;
-
-    const pool = flavors[code] || ["mm. keep going.", "tell me more.", "interesting."];
-    return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  function closeModal() {
-    document.getElementById('modal').classList.remove('show');
-    currentMatch = null;
+  // For demo: store session uid after onboarding
+  const _origSave = window.saveProfile;
+  if (!useFirebase) {
+    window.saveProfile = async function() {
+      await _origSave.call(this);
+      if (currentUser) sessionStorage.setItem('dusk_sess', currentUser.uid);
+    };
   }
 
-  function resetDeck() {
-    deck = shuffle([...agents]);
-    renderDeck();
-  }
+  window.showScreen = showScreen;
 
-  document.getElementById('chatInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendMessage();
-  });
-
-  document.getElementById('modal').addEventListener('click', e => {
-    if (e.target.id === 'modal') closeModal();
-  });
-
-  renderDeck();
+  // Enter key in chat input
+  $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.sendChat(); });
+  $('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.signInEmail(); });
+  $('signupPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.signUpEmail(); });
+  $('matchModal').addEventListener('click', e => { if (e.target.id === 'matchModal') window.closeMatchModal(); });
 </script>
 
 </body>

@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VALORINK — Find Your Duo</title>
+<style>
+  :root {
+    --bg-0: #0f1923;
+    --bg-1: #1a2632;
+    --bg-2: #0b141d;
+    --red: #fa4454;
+    --red-dark: #bd3944;
+    --teal: #5cf2d6;
+    --gold: #ece8e1;
+    --ink: #ece8e1;
+    --muted: #768079;
+    --grid: rgba(92, 242, 214, 0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  @font-face {
+    font-family: "Tungsten";
+    src: local("Impact"), local("Oswald");
+  }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(rgba(15, 25, 35, 0.97), rgba(15, 25, 35, 0.97)),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
+      var(--bg-0);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 80px;
+    overflow-x: hidden;
+    letter-spacing: 0.3px;
+  }
+
+  /* HUD chrome */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--red);
+    pointer-events: none;
+    z-index: 1;
+  }
+  body::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  body::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+  header {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    z-index: 2;
+  }
+
+  .logo {
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--bg-2);
+  }
+
+  .logo span { color: var(--ink); }
+
+  .rank-pill {
+    font-size: 11px;
+    color: var(--teal);
+    padding: 6px 14px;
+    border: 1px solid var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .deck {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 580px;
+    margin-bottom: 26px;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.35s;
+    user-select: none;
+    touch-action: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+    box-shadow: 0 25px 60px -20px rgba(0, 0, 0, 0.8);
+  }
+
+  .card.dragging { transition: none; }
+
+  .card-portrait {
+    height: 58%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .card-portrait::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--portrait-bg);
+    opacity: 0.95;
+  }
+
+  .card-portrait::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
+      linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%),
+      repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.05) 20px, rgba(0,0,0,0.05) 21px);
+    pointer-events: none;
+  }
+
+  .portrait-codename {
+    position: relative;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 92px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 6px;
+    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+    z-index: 1;
+    line-height: 1;
+  }
+
+  .portrait-icon {
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    font-size: 60px;
+    opacity: 0.7;
+    z-index: 1;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+  }
+
+  .portrait-role {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--ink);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    z-index: 2;
+    text-transform: uppercase;
+    border-left: 2px solid var(--red);
+  }
+
+  .card-info {
+    padding: 18px 22px 24px;
+    height: 42%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  }
+
+  .card-name-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .card-realname {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .card-rank {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .card-origin {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-bio {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink);
+    opacity: 0.85;
+    margin-top: 6px;
+  }
+
+  .card-tags {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 8px;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 4px 9px;
+    border: 1px solid rgba(92, 242, 214, 0.4);
+    color: var(--teal);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 50px;
+    font-family: Impact, sans-serif;
+    font-weight: 900;
+    font-size: 38px;
+    padding: 6px 18px;
+    border: 4px solid;
+    letter-spacing: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    z-index: 3;
+  }
+
+  .stamp.like {
+    right: 24px;
+    color: var(--teal);
+    border-color: var(--teal);
+    transform: rotate(15deg);
+  }
+
+  .stamp.nope {
+    left: 24px;
+    color: var(--red);
+    border-color: var(--red);
+    transform: rotate(-15deg);
+  }
+
+  .actions {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .action-btn {
+    width: 64px;
+    height: 64px;
+    border: 2px solid;
+    background: var(--bg-1);
+    color: var(--ink);
+    font-size: 26px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    display: grid;
+    place-items: center;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    font-family: Impact, sans-serif;
+  }
+
+  .action-btn:hover { transform: translateY(-2px); }
+  .action-btn:active { transform: translateY(0) scale(0.96); }
+
+  .action-btn.nope {
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .action-btn.nope:hover {
+    background: var(--red);
+    color: var(--bg-0);
+    box-shadow: 0 0 25px -5px var(--red);
+  }
+  .action-btn.like {
+    color: var(--teal);
+    border-color: var(--teal);
+  }
+  .action-btn.like:hover {
+    background: var(--teal);
+    color: var(--bg-0);
+    box-shadow: 0 0 25px -5px var(--teal);
+  }
+
+  .action-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .action-col { display: flex; flex-direction: column; align-items: center; }
+
+  .empty-state {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    background: var(--bg-1);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+  }
+
+  .empty-state h2 {
+    color: var(--red);
+    margin-bottom: 12px;
+    font-family: Impact, sans-serif;
+    letter-spacing: 4px;
+    font-size: 28px;
+  }
+
+  .refresh-btn {
+    margin-top: 26px;
+    padding: 12px 32px;
+    background: var(--red);
+    border: none;
+    color: var(--bg-0);
+    font-weight: 900;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    font-family: Impact, sans-serif;
+  }
+
+  /* Match modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal-backdrop.show { display: flex; }
+
+  .modal {
+    width: 100%;
+    max-width: 440px;
+    background: var(--bg-1);
+    border: 1px solid var(--red);
+    display: flex;
+    flex-direction: column;
+    max-height: 88vh;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
+  }
+
+  .match-header {
+    padding: 28px 20px 18px;
+    text-align: center;
+    background: linear-gradient(180deg, var(--match-color, var(--red)) 0%, transparent 100%);
+    position: relative;
+  }
+
+  .match-title {
+    font-family: Impact, sans-serif;
+    font-size: 36px;
+    letter-spacing: 6px;
+    color: var(--ink);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+    margin-bottom: 4px;
+  }
+
+  .match-sub {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .match-photos {
+    display: flex;
+    justify-content: center;
+    margin: 18px 0 6px;
+    gap: 12px;
+  }
+
+  .match-avatar {
+    width: 70px;
+    height: 70px;
+    display: grid;
+    place-items: center;
+    font-family: Impact, sans-serif;
+    font-size: 24px;
+    color: white;
+    letter-spacing: 1px;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    border: 2px solid var(--ink);
+  }
+
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 220px;
+    background: var(--bg-2);
+  }
+
+  .msg {
+    max-width: 78%;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    animation: slidein 0.25s ease-out;
+    letter-spacing: 0.3px;
+  }
+
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.them {
+    background: var(--bg-1);
+    border-left: 3px solid var(--match-color, var(--red));
+    align-self: flex-start;
+  }
+
+  .msg.me {
+    background: var(--red);
+    color: var(--bg-0);
+    align-self: flex-end;
+    font-weight: 600;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  }
+
+  .typing {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--bg-1);
+    border-left: 3px solid var(--match-color, var(--red));
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .chat-input {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: var(--bg-1);
+  }
+
+  .chat-input input {
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 11px 16px;
+    color: var(--ink);
+    outline: none;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    font-family: inherit;
+  }
+
+  .chat-input input:focus { border-color: var(--red); }
+
+  .chat-input button {
+    background: var(--red);
+    border: none;
+    width: 44px;
+    color: var(--bg-0);
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: 900;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 10px;
+    z-index: 5;
+    font-family: Impact, sans-serif;
+  }
+
+  .nav-link {
+    margin-top: 30px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .nav-link:hover { color: var(--teal); }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    body { padding: 14px 12px 60px; }
+    body::before, body::after { width: 40px; height: 40px; }
+    .logo { font-size: 24px; letter-spacing: 2px; }
+    .rank-pill { font-size: 10px; padding: 5px 10px; }
+    .deck { height: min(540px, calc(100vh - 220px)); max-width: 100%; }
+    .portrait-codename { font-size: clamp(56px, 18vw, 78px); letter-spacing: 4px; }
+    .portrait-icon { font-size: 44px; bottom: 10px; right: 12px; }
+    .card-realname { font-size: 17px; }
+    .card-bio { font-size: 12.5px; }
+    .action-btn { width: 56px; height: 56px; font-size: 22px; }
+    .actions { gap: 16px; }
+    .modal { max-height: 92vh; }
+    .match-title { font-size: 28px; letter-spacing: 4px; }
+    .match-avatar { width: 60px; height: 60px; font-size: 20px; }
+  }
+
+  @media (max-height: 700px) {
+    .deck { height: calc(100vh - 200px); }
+    .portrait-codename { font-size: clamp(48px, 14vw, 78px); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">VALOR<span>INK</span></div>
+  <div class="rank-pill">▲ Diamond II</div>
+</header>
+
+<div class="deck" id="deck">
+  <div class="empty-state" id="emptyState">
+    <h2>QUEUE EMPTY</h2>
+    <p>You've cycled the entire roster. Want to re-queue?</p>
+    <button class="refresh-btn" onclick="resetDeck()">REDEPLOY</button>
+  </div>
+</div>
+
+<div class="actions">
+  <div class="action-col">
+    <button class="action-btn nope" onclick="swipe('left')" aria-label="Decline">✕</button>
+    <div class="action-label">Decline</div>
+  </div>
+  <div class="action-col">
+    <button class="action-btn like" onclick="swipe('right')" aria-label="Queue">⌖</button>
+    <div class="action-label">Queue Up</div>
+  </div>
+</div>
+
+<a class="nav-link" href="kindling.html">← try Kindling (general)</a>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal" id="modalInner">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="match-header">
+      <div class="match-title">DUO LOCKED</div>
+      <div class="match-sub" id="matchSub"></div>
+      <div class="match-photos">
+        <div class="match-avatar" style="background: linear-gradient(135deg, #fa4454, #bd3944);">LO</div>
+        <div class="match-avatar" id="matchAvatar"></div>
+      </div>
+    </div>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Message your duo..." autocomplete="off" />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const agents = [
+    {
+      codename: "JETT",
+      realname: "Sunwoo Han",
+      origin: "South Korea",
+      role: "Duelist",
+      rank: "Radiant",
+      color: "#7CC4D6",
+      colorDark: "#3a8a9e",
+      icon: "🌪",
+      bio: "I'm in and out before you blink. Don't try to keep up — try to be useful. Also: if you can't aim, don't queue with me. I'll carry, but I want a smile out of it.",
+      tags: ["operator god", "blink dagger", "no scope only"],
+      chat: [
+        "you better aim better than you flirt.",
+        "yeah, yeah. tell me what rank you actually peak.",
+        "I dive first. you watch my back. simple."
+      ]
+    },
+    {
+      codename: "SAGE",
+      realname: "Ling Ying Wei",
+      origin: "China",
+      role: "Sentinel",
+      rank: "Immortal",
+      color: "#8FE0B8",
+      colorDark: "#3d8c63",
+      icon: "❅",
+      bio: "I keep my team alive. I expect the same energy from a partner. I'm soft until I'm not. I read tea leaves, I read minds, and I read entry frags faster than your duelist.",
+      tags: ["res god", "wall king", "patient"],
+      chat: [
+        "hello. you played safe last round. I like that.",
+        "be honest. did you queue with me for the heals.",
+        "I have tea brewing. talk to me while it steeps."
+      ]
+    },
+    {
+      codename: "VIPER",
+      realname: "Sabine Callas",
+      origin: "United States",
+      role: "Controller",
+      rank: "Immortal",
+      color: "#4a7d4a",
+      colorDark: "#2a5530",
+      icon: "☣",
+      bio: "I'm a chemist. I don't do small talk and I don't do losing. If you can't push through my smoke, you don't deserve to follow me into it. Earn the date. Earn everything.",
+      tags: ["lineup gremlin", "post-plant queen", "cold"],
+      chat: [
+        "convince me you're worth my fuel.",
+        "I don't repeat myself. so listen.",
+        "you flinch in my smoke and we're done."
+      ]
+    },
+    {
+      codename: "REYNA",
+      realname: "Zyanya Mondragón",
+      origin: "Mexico",
+      role: "Duelist",
+      rank: "Radiant",
+      color: "#A06FD8",
+      colorDark: "#5a3580",
+      icon: "♛",
+      bio: "Mi amor — I feed on kills and compliments. Don't bring me flowers, bring me frags. I go god-mode when I'm in the mood, and I'm always in the mood when someone's watching.",
+      tags: ["solo queue terror", "dismiss pro", "vampiric"],
+      chat: [
+        "mi cielo. you swiped on a duelist. brave.",
+        "feed me a soul. I'll feed you back.",
+        "I want someone who watches me clutch and doesn't get jealous."
+      ]
+    },
+    {
+      codename: "KILLJOY",
+      realname: "Klara Böhringer",
+      origin: "Germany",
+      role: "Sentinel",
+      rank: "Immortal",
+      color: "#F5C13E",
+      colorDark: "#a68420",
+      icon: "⚙",
+      bio: "Engineer. I built my first turret at eleven. I run two monitors, a soldering iron station, and a heart that, statistically speaking, has room for exactly one more. Don't break it.",
+      tags: ["nanoswarm enjoyer", "lockdown ult", "nerd"],
+      chat: [
+        "you saw my profile. you swiped. very smart of you.",
+        "Hallo. I am running diagnostics on this conversation.",
+        "I can build you something. for the right person. mm."
+      ]
+    },
+    {
+      codename: "NEON",
+      realname: "Tala Valdez",
+      origin: "Philippines",
+      role: "Duelist",
+      rank: "Diamond",
+      color: "#5DC3F5",
+      colorDark: "#2a6f96",
+      icon: "⚡",
+      bio: "I run faster than your aim. College kid by day, lightning rod by night. I will absolutely outpeek you and then ask if you want boba after. Kuya, I'm a lot. You'll love it.",
+      tags: ["fastest entry", "stun queen", "chaotic"],
+      chat: [
+        "OH MY GOD okay you matched with me hi hi hi",
+        "wanna duo right now? right now right now?",
+        "I'm caffeinated. you've been warned, kuya."
+      ]
+    },
+    {
+      codename: "RAZE",
+      realname: "Tayane Alves",
+      origin: "Brazil",
+      role: "Duelist",
+      rank: "Immortal",
+      color: "#F5934A",
+      colorDark: "#a65f25",
+      icon: "✸",
+      bio: "Boom. Boom. Bigger boom. I come from São Paulo and I make everything louder. Bring me to a party, I'll start one. Bring me into a site, I'll end it. Same energy either way.",
+      tags: ["satchel jumper", "showstopper", "festa girl"],
+      chat: [
+        "oi gato! you ready to make some noise?",
+        "I just satchel'd onto your profile. literally.",
+        "festa tonight at my place. you bring the drinks."
+      ]
+    },
+    {
+      codename: "FADE",
+      realname: "Hazal Demir",
+      origin: "Turkey",
+      role: "Initiator",
+      rank: "Immortal",
+      color: "#5e4d6e",
+      colorDark: "#332840",
+      icon: "◐",
+      bio: "I see your nightmares. The ones you don't admit to. The ones with your ex still in them. Don't worry — I won't tell. I'll just know. Meet me in your sleep.",
+      tags: ["intel queen", "haunt clutch", "gothic"],
+      chat: [
+        "I've already seen this conversation in a dream.",
+        "tell me what you're afraid of. start small.",
+        "you sleep with the light on. I knew before I asked."
+      ]
+    }
+  ];
+
+  let deck = shuffle([...agents]);
+  let currentMatch = null;
+  let chatTurn = 0;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function el(tag, cls, html) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function renderDeck() {
+    const container = document.getElementById('deck');
+    container.querySelectorAll('.card').forEach(c => c.remove());
+
+    if (deck.length === 0) {
+      document.getElementById('emptyState').style.display = 'flex';
+      return;
+    }
+    document.getElementById('emptyState').style.display = 'none';
+
+    const visible = deck.slice(0, 3).reverse();
+    visible.forEach((p, idx) => {
+      const realIdx = visible.length - 1 - idx;
+      const card = el('div', 'card');
+      card.style.transform = `scale(${1 - realIdx * 0.04}) translateY(${realIdx * 12}px)`;
+      card.style.zIndex = 10 - realIdx;
+      card.dataset.idx = realIdx;
+      card.style.setProperty('--portrait-bg', `linear-gradient(135deg, ${p.color} 0%, ${p.colorDark} 100%)`);
+
+      card.innerHTML = `
+        <div class="card-portrait">
+          <div class="portrait-role">${p.role}</div>
+          <div class="portrait-codename">${p.codename}</div>
+          <div class="portrait-icon">${p.icon}</div>
+          <div class="stamp like">QUEUE</div>
+          <div class="stamp nope">DECLINE</div>
+        </div>
+        <div class="card-info">
+          <div class="card-name-row">
+            <div class="card-realname">${p.realname}</div>
+            <div class="card-rank">▲ ${p.rank}</div>
+          </div>
+          <div class="card-origin">⌖ ${p.origin}</div>
+          <div class="card-bio">${p.bio}</div>
+          <div class="card-tags">
+            ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      if (realIdx === 0) attachDrag(card);
+      container.appendChild(card);
+    });
+  }
+
+  function attachDrag(card) {
+    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
+    const likeStamp = card.querySelector('.stamp.like');
+    const nopeStamp = card.querySelector('.stamp.nope');
+
+    const start = (x, y) => {
+      startX = x; startY = y; dragging = true;
+      card.classList.add('dragging');
+    };
+
+    const move = (x, y) => {
+      if (!dragging) return;
+      dx = x - startX; dy = y - startY;
+      const rot = dx * 0.08;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      likeStamp.style.opacity = Math.max(0, Math.min(1, dx / 100));
+      nopeStamp.style.opacity = Math.max(0, Math.min(1, -dx / 100));
+    };
+
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      card.classList.remove('dragging');
+      if (Math.abs(dx) > 100) {
+        swipe(dx > 0 ? 'right' : 'left', card);
+      } else {
+        card.style.transform = '';
+        likeStamp.style.opacity = 0;
+        nopeStamp.style.opacity = 0;
+      }
+      dx = 0; dy = 0;
+    };
+
+    card.addEventListener('pointerdown', e => { card.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
+    card.addEventListener('pointermove', e => move(e.clientX, e.clientY));
+    card.addEventListener('pointerup', end);
+    card.addEventListener('pointercancel', end);
+  }
+
+  function swipe(direction, cardEl) {
+    if (deck.length === 0) return;
+    const top = cardEl || document.querySelector('.card[data-idx="0"]');
+    if (!top) return;
+
+    const xOff = direction === 'right' ? 600 : -600;
+    const rot = direction === 'right' ? 25 : -25;
+    top.style.transform = `translate(${xOff}px, -40px) rotate(${rot}deg)`;
+    top.style.opacity = '0';
+
+    const swiped = deck.shift();
+
+    setTimeout(() => {
+      renderDeck();
+      if (direction === 'right' && Math.random() > 0.15) {
+        openMatch(swiped);
+      }
+    }, 320);
+  }
+
+  function openMatch(profile) {
+    currentMatch = profile;
+    chatTurn = 0;
+    document.getElementById('matchSub').textContent = `You and ${profile.codename} are queued together.`;
+    const av = document.getElementById('matchAvatar');
+    av.textContent = profile.codename.slice(0, 3);
+    av.style.background = `linear-gradient(135deg, ${profile.color}, ${profile.colorDark})`;
+
+    document.getElementById('modalInner').style.setProperty('--match-color', profile.color);
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('modal').classList.add('show');
+
+    setTimeout(() => themTypes(profile.chat[0]), 700);
+  }
+
+  function themTypes(text) {
+    const chat = document.getElementById('chatArea');
+    const typing = el('div', 'typing', '<span></span><span></span><span></span>');
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      typing.remove();
+      const m = el('div', 'msg them', text);
+      chat.appendChild(m);
+      chat.scrollTop = chat.scrollHeight;
+    }, 900 + Math.random() * 800);
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    const chat = document.getElementById('chatArea');
+    const m = el('div', 'msg me', text);
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+
+    chatTurn++;
+    if (chatTurn < currentMatch.chat.length) {
+      setTimeout(() => themTypes(currentMatch.chat[chatTurn]), 700);
+    } else {
+      setTimeout(() => themTypes(generateReply(text)), 700);
+    }
+  }
+
+  function generateReply(userText) {
+    const t = userText.toLowerCase();
+    const code = currentMatch.codename;
+
+    // Per-agent flavored replies
+    const flavors = {
+      JETT: [
+        "yeah yeah. less talking, more aiming.",
+        "you're cute. doesn't change my K/D.",
+        "I'm already on B site. catch up."
+      ],
+      SAGE: [
+        "be patient. I'll come find you.",
+        "you talk softly. I like that.",
+        "stay alive for me. I'll heal the rest."
+      ],
+      VIPER: [
+        "interesting. keep talking.",
+        "you haven't lost me yet. that's something.",
+        "I don't reward effort. only results."
+      ],
+      REYNA: [
+        "mmm. say it again, mi amor.",
+        "queue with me. I want to watch you watch me.",
+        "you're sweet. I'll keep you, for now."
+      ],
+      KILLJOY: [
+        "I am calculating compatibility. results: very promising.",
+        "ja, that was clever. say something else.",
+        "you have my attention. that's rare. use it well."
+      ],
+      NEON: [
+        "OH MY GOD okay okay tell me more!!",
+        "you're funny!! kuya are you free saturday??",
+        "lol I'm vibrating. that's normal for me."
+      ],
+      RAZE: [
+        "kkkk you're funny gato!",
+        "BOOM. that's me reacting to your message.",
+        "samba lessons. my place. eight."
+      ],
+      FADE: [
+        "I knew you'd say that.",
+        "you're hiding something. it's fine. I'll find it.",
+        "close your eyes. I'll be there."
+      ]
+    };
+
+    if (/\?$/.test(t)) {
+      const qs = ["ask me when I'm off comms.", "depends what I get out of it.", "you first.", "make me want to answer."];
+      return qs[Math.floor(Math.random() * qs.length)];
+    }
+    if (/queue|duo|play|game|match/.test(t)) return `okay. let's run it. don't throw.`;
+    if (/cute|hot|pretty|beautiful|gorgeous/.test(t)) return `careful. flattery works on me about thirty percent of the time.`;
+    if (/love|miss/.test(t)) return `slow down. we're not on the same comms yet.`;
+    if (/rank|elo/.test(t)) return `peak ${currentMatch.rank}. obviously.`;
+
+    const pool = flavors[code] || ["mm. keep going.", "tell me more.", "interesting."];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+    currentMatch = null;
+  }
+
+  function resetDeck() {
+    deck = shuffle([...agents]);
+    renderDeck();
+  }
+
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target.id === 'modal') closeModal();
+  });
+
+  renderDeck();
+</script>
+
+</body>
+</html>
