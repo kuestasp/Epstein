@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Browse — DuoDate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="topnav">
+    <a href="/browse" class="active">Browse</a>
+    <a href="/matches">Matches</a>
+    <a href="/profile/edit">Profile</a>
+    <a href="/logout">Sign out</a>
+  </nav>
+
+  <div class="container">
+    <form class="filter-bar" method="get">
+      <select name="rank">
+        <option value="">All ranks</option>
+        <% ['Iron','Bronze','Silver','Gold','Platinum','Diamond','Ascendant','Immortal','Radiant'].forEach(r => { %>
+          <option value="<%= r %>" <%= filters.rank===r?'selected':'' %>><%= r %></option>
+        <% }) %>
+      </select>
+      <select name="role">
+        <option value="">All roles</option>
+        <% ['Duelist','Controller','Sentinel','Initiator','Flex'].forEach(r => { %>
+          <option value="<%= r %>" <%= filters.role===r?'selected':'' %>><%= r %></option>
+        <% }) %>
+      </select>
+      <select name="game">
+        <option value="">All games</option>
+        <% ['League of Legends','CS2','Apex Legends','Overwatch 2','Fortnite','Rainbow Six','Dota 2','Rocket League','Marvel Rivals','Deadlock'].forEach(g => { %>
+          <option value="<%= g %>" <%= filters.game===g?'selected':'' %>><%= g %></option>
+        <% }) %>
+      </select>
+      <button class="btn small">Filter</button>
+    </form>
+
+    <% if (candidate) { %>
+      <div class="swipe-card">
+        <% if (candidate.avatar) { %>
+          <img src="<%= candidate.avatar %>" alt="" class="swipe-avatar">
+        <% } else { %>
+          <div class="swipe-avatar placeholder">🎮</div>
+        <% } %>
+
+        <div class="swipe-info">
+          <h2><%= candidate.name %>, <%= candidate.age %></h2>
+          <div class="badges">
+            <% if (candidate.valorant_rank) { %><span class="badge rank rank-<%= candidate.valorant_rank.toLowerCase() %>"><%= candidate.valorant_rank %></span><% } %>
+            <% if (candidate.main_role) { %><span class="badge role"><%= candidate.main_role %></span><% } %>
+            <% if (candidate.playstyle) { %><span class="badge"><%= candidate.playstyle %></span><% } %>
+            <% if (candidate.timezone) { %><span class="badge tz">🕐 <%= candidate.timezone %></span><% } %>
+          </div>
+
+          <% if (candidate.main_agents) { %>
+            <p class="row-label">MAIN AGENTS</p>
+            <p class="row-val"><%= candidate.main_agents %></p>
+          <% } %>
+
+          <% if (candidate.other_games) { %>
+            <p class="row-label">ALSO PLAYS</p>
+            <div class="game-pills">
+              <% candidate.other_games.split(',').filter(Boolean).forEach(g => { %>
+                <span class="pill"><%= g %></span>
+              <% }) %>
+            </div>
+          <% } %>
+
+          <% if (candidate.seeking) { %>
+            <p class="row-label">LOOKING FOR</p>
+            <p class="row-val"><%= candidate.seeking %></p>
+          <% } %>
+
+          <% if (candidate.bio) { %>
+            <p class="row-label">BIO</p>
+            <p class="bio"><%= candidate.bio %></p>
+          <% } %>
+        </div>
+
+        <div class="swipe-actions">
+          <form method="post" action="/skip/<%= candidate.id %>">
+            <button class="btn skip" title="Skip">✕</button>
+          </form>
+          <form method="post" action="/like/<%= candidate.id %>">
+            <button class="btn like" title="Like">♥</button>
+          </form>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="card center-text">
+        <h2>Queue's empty 🎯</h2>
+        <p class="muted">No more profiles matching your filters. Try widening them or come back later.</p>
+        <a class="btn primary" href="/browse">Clear filters</a>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "duodate",
+  "version": "1.0.0",
+  "description": "Gamer dating site — find your duo, date your duo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "google-auth-library": "^9.14.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sign in — DuoDate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="center landing-bg">
+  <div class="card">
+    <div class="logo small">DUO<span>DATE</span></div>
+    <h1>Sign in</h1>
+    <% if (err) { %>
+      <div class="alert">Sign-in failed — try again</div>
+    <% } %>
+    <a class="btn google" href="/auth/google">
+      <img src="https://developers.google.com/identity/images/g-logo.png" width="20" alt="">
+      Continue with Google
+    </a>
+    <p class="muted center-text mt">
+      We never post anything. Just your name, email, and avatar.
+    </p>
+    <a href="/" class="muted center-text mt2 block">← back</a>
+  </div>
+</body>
+</html>
