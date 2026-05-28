@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kindling — Find Someone Tonight</title>
+<style>
+  :root {
+    --bg-1: #1a0d18;
+    --bg-2: #2d1525;
+    --accent: #ff5a7a;
+    --accent-2: #ffb199;
+    --ink: #f7eef0;
+    --muted: #b39aa3;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #3a1a2e 0%, transparent 60%),
+      radial-gradient(900px 500px at 110% 110%, #4a1a35 0%, transparent 55%),
+      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 80px;
+    overflow-x: hidden;
+  }
+
+  header {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .logo {
+    font-family: "Georgia", serif;
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 0.5px;
+  }
+
+  .logo::after {
+    content: "🔥";
+    -webkit-text-fill-color: initial;
+    margin-left: 4px;
+    font-size: 20px;
+  }
+
+  .profile-pill {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 12px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+  }
+
+  .deck {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    height: 560px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+    cursor: grab;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.35s;
+    user-select: none;
+    touch-action: none;
+  }
+
+  .card:active { cursor: grabbing; }
+
+  .card.dragging { transition: none; }
+
+  .card-photo {
+    height: 60%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+
+  .card-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%);
+  }
+
+  .card-info {
+    padding: 20px 22px;
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-name {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .card-age {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  .card-role {
+    font-size: 13px;
+    color: var(--accent-2);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .card-bio {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  .card-tags {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    color: var(--muted);
+  }
+
+  .stamp {
+    position: absolute;
+    top: 32px;
+    font-weight: 900;
+    font-size: 34px;
+    padding: 6px 16px;
+    border: 4px solid;
+    border-radius: 12px;
+    letter-spacing: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+  }
+
+  .stamp.like {
+    right: 24px;
+    color: #4ade80;
+    border-color: #4ade80;
+    transform: rotate(15deg);
+  }
+
+  .stamp.nope {
+    left: 24px;
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: rotate(-15deg);
+  }
+
+  .actions {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+  }
+
+  .action-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    font-size: 26px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: grid;
+    place-items: center;
+  }
+
+  .action-btn:hover { transform: scale(1.08); }
+  .action-btn:active { transform: scale(0.95); }
+
+  .action-btn.nope { color: var(--accent); }
+  .action-btn.like { color: #4ade80; }
+  .action-btn.like:hover { box-shadow: 0 0 30px -5px #4ade80; }
+  .action-btn.nope:hover { box-shadow: 0 0 30px -5px var(--accent); }
+
+  .empty-state {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+  }
+
+  .empty-state h2 {
+    color: var(--ink);
+    margin-bottom: 12px;
+    font-family: Georgia, serif;
+  }
+
+  .refresh-btn {
+    margin-top: 24px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    border: none;
+    border-radius: 999px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* Match modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+
+  .modal-backdrop.show { display: flex; }
+
+  .modal {
+    width: 100%;
+    max-width: 420px;
+    background: linear-gradient(180deg, #2a1422 0%, #1a0d18 100%);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+  }
+
+  .match-header {
+    padding: 30px 20px 20px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(255, 90, 122, 0.2), transparent);
+  }
+
+  .match-title {
+    font-family: Georgia, serif;
+    font-size: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+  }
+
+  .match-sub { color: var(--muted); font-size: 14px; }
+
+  .match-photos {
+    display: flex;
+    justify-content: center;
+    gap: -10px;
+    margin: 16px 0;
+  }
+
+  .match-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid var(--bg-1);
+    margin: 0 -10px;
+  }
+
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px;
+  }
+
+  .msg {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.4;
+    animation: slidein 0.25s ease-out;
+  }
+
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.them {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg.me {
+    background: linear-gradient(135deg, var(--accent) 0%, #e84874 100%);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .typing {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border-radius: 18px;
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite;
+  }
+
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .chat-input {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--card-border);
+  }
+
+  .chat-input input {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 10px 16px;
+    color: var(--ink);
+    outline: none;
+    font-size: 14px;
+  }
+
+  .chat-input input:focus { border-color: var(--accent); }
+
+  .chat-input button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 10px;
+  }
+
+  .modal-wrap { position: relative; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Kindling</div>
+  <div class="profile-pill">📍 Your Area</div>
+</header>
+
+<div class="deck" id="deck">
+  <div class="empty-state" id="emptyState">
+    <h2>That's everyone for now</h2>
+    <p>You've seen every soul within a hundred miles. Want another spin?</p>
+    <button class="refresh-btn" onclick="resetDeck()">Refresh the pool</button>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="action-btn nope" onclick="swipe('left')" aria-label="Pass">✕</button>
+  <button class="action-btn like" onclick="swipe('right')" aria-label="Like">♥</button>
+</div>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal-wrap">
+    <div class="modal">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <div class="match-header">
+        <div class="match-title">It's a match.</div>
+        <div class="match-sub" id="matchSub"></div>
+        <div class="match-photos">
+          <div class="match-avatar" style="background-image: url('https://i.pravatar.cc/200?img=12')"></div>
+          <div class="match-avatar" id="matchAvatar"></div>
+        </div>
+      </div>
+      <div class="chat-area" id="chatArea"></div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Say something..." autocomplete="off" />
+        <button onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const profiles = [
+    {
+      name: "Mira Castellanos",
+      age: 28,
+      role: "Art conservator",
+      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600",
+      bio: "I spend my days repairing damaged paintings under a lamp the size of a small moon. Looking for someone who doesn't mind that I smell faintly of turpentine.",
+      tags: ["museums", "rainy walks", "espresso"],
+      chat: [
+        "you don't look like someone who reads. prove me wrong.",
+        "if you say one more clever thing I might have to invite you over.",
+        "tell me something true that you've never told anyone."
+      ]
+    },
+    {
+      name: "Yuki Brennan",
+      age: 26,
+      role: "Jazz pianist",
+      photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600",
+      bio: "Half Osaka, half Dublin, fully exhausted. I play at a basement bar on 4th from 11pm to 2am. Come find me. Order anything but the house wine.",
+      tags: ["late nights", "vinyl", "ramen runs"],
+      chat: [
+        "you up? bad question. but also.",
+        "what's the last song that wrecked you?",
+        "I get off work at two. there's a noodle place that's still open."
+      ]
+    },
+    {
+      name: "Aisha Volkov",
+      age: 30,
+      role: "Paramedic",
+      photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600",
+      bio: "I read Camus on my lunch breaks and I've seen worse than your ex's text history. Don't be boring. Be honest or be useful, ideally both.",
+      tags: ["philosophy", "early mornings", "black coffee"],
+      chat: [
+        "okay you matched with me, now what's the plan, soldier.",
+        "I'm off shift at 7. you cook?",
+        "tell me your worst opinion. I'll grade it."
+      ]
+    },
+    {
+      name: "Cleo Marchetti",
+      age: 27,
+      role: "Tattoo artist",
+      photo: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600",
+      bio: "I run a shop in the warehouse district. I have a cat named Saint and a sleeve I'm still finishing. Don't ask me to draw your girlfriend's name on you. I will.",
+      tags: ["ink", "whiskey", "old westerns"],
+      chat: [
+        "you've got a face I'd ink for free. that's a high compliment from me.",
+        "my chair's open thursday. or my apartment. depends.",
+        "are you the kind of guy who actually shows up?"
+      ]
+    },
+    {
+      name: "Ren Ashworth-Tanaka",
+      age: 29,
+      role: "Video game writer",
+      photo: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600",
+      bio: "I write quest dialogue for a studio you've heard of. I live in a hoodie. I will absolutely lore-dump you on a first date and I won't apologize for it.",
+      tags: ["RPGs", "ramen", "rainy sundays"],
+      chat: [
+        "okay quick: tabletop, console, or PC. wrong answers get unmatched.",
+        "I just hit a deadline. drinks?",
+        "you swipe right on a lot of writers or am I just lucky."
+      ]
+    },
+    {
+      name: "Sasha Lindqvist",
+      age: 31,
+      role: "Climbing instructor",
+      photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600",
+      bio: "Born in Göteborg, raised on cliffs. My knuckles are scarred and my apartment is full of plants. I want someone who hikes before brunch and stays for dinner.",
+      tags: ["climbing", "sourdough", "northern lights"],
+      chat: [
+        "you look like you've never been outside. I can fix that.",
+        "saturday. 6am. the bluff. yes or no.",
+        "what's the heaviest thing you've ever carried, literal or otherwise."
+      ]
+    }
+  ];
+
+  let deck = [...profiles];
+  let currentMatch = null;
+  let chatTurn = 0;
+
+  function el(tag, cls, html) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function renderDeck() {
+    const container = document.getElementById('deck');
+    container.querySelectorAll('.card').forEach(c => c.remove());
+
+    if (deck.length === 0) {
+      document.getElementById('emptyState').style.display = 'flex';
+      return;
+    }
+    document.getElementById('emptyState').style.display = 'none';
+
+    const visible = deck.slice(0, 3).reverse();
+    visible.forEach((p, idx) => {
+      const realIdx = visible.length - 1 - idx;
+      const card = el('div', 'card');
+      card.style.transform = `scale(${1 - realIdx * 0.04}) translateY(${realIdx * 12}px)`;
+      card.style.zIndex = 10 - realIdx;
+      card.dataset.idx = realIdx;
+
+      card.innerHTML = `
+        <div class="card-photo" style="background-image: url('${p.photo}')">
+          <div class="stamp like">LIKE</div>
+          <div class="stamp nope">NOPE</div>
+        </div>
+        <div class="card-info">
+          <div class="card-name">${p.name} <span class="card-age">${p.age}</span></div>
+          <div class="card-role">${p.role}</div>
+          <div class="card-bio">${p.bio}</div>
+          <div class="card-tags">
+            ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>
+      `;
+
+      if (realIdx === 0) attachDrag(card);
+      container.appendChild(card);
+    });
+  }
+
+  function attachDrag(card) {
+    let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false;
+    const likeStamp = card.querySelector('.stamp.like');
+    const nopeStamp = card.querySelector('.stamp.nope');
+
+    const start = (x, y) => {
+      startX = x; startY = y; dragging = true;
+      card.classList.add('dragging');
+    };
+
+    const move = (x, y) => {
+      if (!dragging) return;
+      dx = x - startX; dy = y - startY;
+      const rot = dx * 0.08;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot}deg)`;
+      likeStamp.style.opacity = Math.max(0, Math.min(1, dx / 100));
+      nopeStamp.style.opacity = Math.max(0, Math.min(1, -dx / 100));
+    };
+
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      card.classList.remove('dragging');
+      if (Math.abs(dx) > 100) {
+        swipe(dx > 0 ? 'right' : 'left', card);
+      } else {
+        card.style.transform = '';
+        likeStamp.style.opacity = 0;
+        nopeStamp.style.opacity = 0;
+      }
+      dx = 0; dy = 0;
+    };
+
+    card.addEventListener('pointerdown', e => { card.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
+    card.addEventListener('pointermove', e => move(e.clientX, e.clientY));
+    card.addEventListener('pointerup', end);
+    card.addEventListener('pointercancel', end);
+  }
+
+  function swipe(direction, cardEl) {
+    if (deck.length === 0) return;
+    const top = cardEl || document.querySelector('.card[data-idx="0"]');
+    if (!top) return;
+
+    const xOff = direction === 'right' ? 600 : -600;
+    const rot = direction === 'right' ? 25 : -25;
+    top.style.transform = `translate(${xOff}px, -40px) rotate(${rot}deg)`;
+    top.style.opacity = '0';
+
+    const swiped = deck.shift();
+
+    setTimeout(() => {
+      renderDeck();
+      if (direction === 'right' && Math.random() > 0.15) {
+        openMatch(swiped);
+      }
+    }, 320);
+  }
+
+  function openMatch(profile) {
+    currentMatch = profile;
+    chatTurn = 0;
+    document.getElementById('matchSub').textContent = `You and ${profile.name.split(' ')[0]} liked each other.`;
+    document.getElementById('matchAvatar').style.backgroundImage = `url('${profile.photo}')`;
+    document.getElementById('chatArea').innerHTML = '';
+    document.getElementById('modal').classList.add('show');
+
+    setTimeout(() => themTypes(profile.chat[0]), 600);
+  }
+
+  function themTypes(text) {
+    const chat = document.getElementById('chatArea');
+    const typing = el('div', 'typing', '<span></span><span></span><span></span>');
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+
+    setTimeout(() => {
+      typing.remove();
+      const m = el('div', 'msg them', text);
+      chat.appendChild(m);
+      chat.scrollTop = chat.scrollHeight;
+    }, 900 + Math.random() * 800);
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    const chat = document.getElementById('chatArea');
+    const m = el('div', 'msg me', text);
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+
+    chatTurn++;
+    if (chatTurn < currentMatch.chat.length) {
+      setTimeout(() => themTypes(currentMatch.chat[chatTurn]), 700);
+    } else {
+      setTimeout(() => themTypes(generateReply(text)), 700);
+    }
+  }
+
+  function generateReply(userText) {
+    const t = userText.toLowerCase();
+    const name = currentMatch.name.split(' ')[0];
+
+    if (/\?$/.test(t)) {
+      const answers = [
+        "depends. how badly do you want to know.",
+        "you first.",
+        "ask me in person.",
+        "mm. that's a question for the third drink, not the third message."
+      ];
+      return answers[Math.floor(Math.random() * answers.length)];
+    }
+    if (/hi|hey|hello/.test(t)) return `hi yourself. took you long enough.`;
+    if (/coffee|drink|dinner|date/.test(t)) return `okay. when. and don't pick somewhere with a wine list longer than the menu.`;
+    if (/cute|hot|beautiful|pretty/.test(t)) return `careful. I bruise easy and I remember everything.`;
+    if (/love|miss/.test(t)) return `slow down, cowboy. we just matched.`;
+
+    const generic = [
+      "tell me more.",
+      "okay I like you. don't make me regret it.",
+      "say that to my face on saturday.",
+      `you're trouble, ${'you'}. I'm into it.`,
+      "mm. keep going."
+    ];
+    return generic[Math.floor(Math.random() * generic.length)];
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('show');
+    currentMatch = null;
+  }
+
+  function resetDeck() {
+    deck = [...profiles].sort(() => Math.random() - 0.5);
+    renderDeck();
+  }
+
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target.id === 'modal') closeModal();
+  });
+
+  renderDeck();
+</script>
+
+</body>
+</html>
