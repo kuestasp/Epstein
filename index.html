@@ -3,148 +3,222 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kindling — Find Someone Tonight</title>
+<title>VALORINK — Find Your Duo</title>
 <style>
   :root {
-    --bg-1: #1a0d18;
-    --bg-2: #2d1525;
-    --accent: #ff5a7a;
-    --accent-2: #ffb199;
-    --ink: #f7eef0;
-    --muted: #b39aa3;
-    --card-bg: rgba(255, 255, 255, 0.06);
-    --card-border: rgba(255, 255, 255, 0.12);
+    --bg-0: #0f1923;
+    --bg-1: #1a2632;
+    --bg-2: #0b141d;
+    --red: #fa4454;
+    --red-dark: #bd3944;
+    --teal: #5cf2d6;
+    --gold: #ece8e1;
+    --ink: #ece8e1;
+    --muted: #768079;
+    --grid: rgba(92, 242, 214, 0.08);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  @font-face {
+    font-family: "Tungsten";
+    src: local("Impact"), local("Oswald");
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background:
-      radial-gradient(1200px 600px at 10% -10%, #3a1a2e 0%, transparent 60%),
-      radial-gradient(900px 500px at 110% 110%, #4a1a35 0%, transparent 55%),
-      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      linear-gradient(rgba(15, 25, 35, 0.97), rgba(15, 25, 35, 0.97)),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, var(--grid) 39px, var(--grid) 40px),
+      var(--bg-0);
     color: var(--ink);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 16px 80px;
+    padding: 20px 16px 80px;
     overflow-x: hidden;
+    letter-spacing: 0.3px;
   }
+
+  /* HUD chrome */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--red);
+    pointer-events: none;
+    z-index: 1;
+  }
+  body::before { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+  body::after { bottom: 12px; right: 12px; border-left: none; border-top: none; }
 
   header {
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 22px;
+    z-index: 2;
   }
 
   .logo {
-    font-family: "Georgia", serif;
-    font-size: 26px;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    letter-spacing: 0.5px;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-shadow: 2px 2px 0 var(--bg-2);
   }
 
-  .logo::after {
-    content: "🔥";
-    -webkit-text-fill-color: initial;
-    margin-left: 4px;
-    font-size: 20px;
-  }
+  .logo span { color: var(--ink); }
 
-  .profile-pill {
-    font-size: 12px;
-    color: var(--muted);
-    padding: 6px 12px;
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
+  .rank-pill {
+    font-size: 11px;
+    color: var(--teal);
+    padding: 6px 14px;
+    border: 1px solid var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
   }
 
   .deck {
     position: relative;
     width: 100%;
-    max-width: 380px;
-    height: 560px;
-    margin-bottom: 24px;
+    max-width: 400px;
+    height: 580px;
+    margin-bottom: 26px;
   }
 
   .card {
     position: absolute;
     inset: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 24px;
+    background: var(--bg-1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
     cursor: grab;
     transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.35s;
     user-select: none;
     touch-action: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+    box-shadow: 0 25px 60px -20px rgba(0, 0, 0, 0.8);
   }
-
-  .card:active { cursor: grabbing; }
 
   .card.dragging { transition: none; }
 
-  .card-photo {
-    height: 60%;
-    background-size: cover;
-    background-position: center;
+  .card-portrait {
+    height: 58%;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
 
-  .card-photo::after {
+  .card-portrait::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7) 100%);
+    background: var(--portrait-bg);
+    opacity: 0.95;
+  }
+
+  .card-portrait::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15) 0%, transparent 40%),
+      linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.5) 100%),
+      repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(0,0,0,0.05) 20px, rgba(0,0,0,0.05) 21px);
+    pointer-events: none;
+  }
+
+  .portrait-codename {
+    position: relative;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 92px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 6px;
+    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
+    z-index: 1;
+    line-height: 1;
+  }
+
+  .portrait-icon {
+    position: absolute;
+    bottom: 14px;
+    right: 18px;
+    font-size: 60px;
+    opacity: 0.7;
+    z-index: 1;
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+  }
+
+  .portrait-role {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--ink);
+    background: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    z-index: 2;
+    text-transform: uppercase;
+    border-left: 2px solid var(--red);
   }
 
   .card-info {
-    padding: 20px 22px;
-    height: 40%;
+    padding: 18px 22px 24px;
+    height: 42%;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
   }
 
-  .card-name {
-    font-size: 24px;
-    font-weight: 700;
+  .card-name-row {
     display: flex;
     align-items: baseline;
+    justify-content: space-between;
     gap: 10px;
   }
 
-  .card-age {
-    font-weight: 400;
-    color: var(--muted);
-    font-size: 18px;
+  .card-realname {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
   }
 
-  .card-role {
-    font-size: 13px;
-    color: var(--accent-2);
+  .card-rank {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 2px;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+  }
+
+  .card-origin {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .card-bio {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.5;
     color: var(--ink);
     opacity: 0.85;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .card-tags {
@@ -152,72 +226,101 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    padding-top: 8px;
   }
 
   .tag {
-    font-size: 11px;
-    padding: 4px 10px;
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
-    color: var(--muted);
+    font-size: 10px;
+    padding: 4px 9px;
+    border: 1px solid rgba(92, 242, 214, 0.4);
+    color: var(--teal);
+    letter-spacing: 1px;
+    text-transform: uppercase;
   }
 
   .stamp {
     position: absolute;
-    top: 32px;
+    top: 50px;
+    font-family: Impact, sans-serif;
     font-weight: 900;
-    font-size: 34px;
-    padding: 6px 16px;
+    font-size: 38px;
+    padding: 6px 18px;
     border: 4px solid;
-    border-radius: 12px;
-    letter-spacing: 2px;
+    letter-spacing: 4px;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.1s;
+    z-index: 3;
   }
 
   .stamp.like {
     right: 24px;
-    color: #4ade80;
-    border-color: #4ade80;
+    color: var(--teal);
+    border-color: var(--teal);
     transform: rotate(15deg);
   }
 
   .stamp.nope {
     left: 24px;
-    color: var(--accent);
-    border-color: var(--accent);
+    color: var(--red);
+    border-color: var(--red);
     transform: rotate(-15deg);
   }
 
   .actions {
     display: flex;
-    gap: 18px;
+    gap: 22px;
     justify-content: center;
+    align-items: center;
   }
 
   .action-btn {
     width: 64px;
     height: 64px;
-    border-radius: 50%;
-    border: none;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    border: 2px solid;
+    background: var(--bg-1);
     color: var(--ink);
     font-size: 26px;
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
     display: grid;
     place-items: center;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    font-family: Impact, sans-serif;
   }
 
-  .action-btn:hover { transform: scale(1.08); }
-  .action-btn:active { transform: scale(0.95); }
+  .action-btn:hover { transform: translateY(-2px); }
+  .action-btn:active { transform: translateY(0) scale(0.96); }
 
-  .action-btn.nope { color: var(--accent); }
-  .action-btn.like { color: #4ade80; }
-  .action-btn.like:hover { box-shadow: 0 0 30px -5px #4ade80; }
-  .action-btn.nope:hover { box-shadow: 0 0 30px -5px var(--accent); }
+  .action-btn.nope {
+    color: var(--red);
+    border-color: var(--red);
+  }
+  .action-btn.nope:hover {
+    background: var(--red);
+    color: var(--bg-0);
+    box-shadow: 0 0 25px -5px var(--red);
+  }
+  .action-btn.like {
+    color: var(--teal);
+    border-color: var(--teal);
+  }
+  .action-btn.like:hover {
+    background: var(--teal);
+    color: var(--bg-0);
+    box-shadow: 0 0 25px -5px var(--teal);
+  }
+
+  .action-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .action-col { display: flex; flex-direction: column; align-items: center; }
 
   .empty-state {
     position: absolute;
@@ -229,32 +332,39 @@
     text-align: center;
     padding: 40px;
     color: var(--muted);
+    background: var(--bg-1);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
   }
 
   .empty-state h2 {
-    color: var(--ink);
+    color: var(--red);
     margin-bottom: 12px;
-    font-family: Georgia, serif;
+    font-family: Impact, sans-serif;
+    letter-spacing: 4px;
+    font-size: 28px;
   }
 
   .refresh-btn {
-    margin-top: 24px;
-    padding: 12px 28px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    margin-top: 26px;
+    padding: 12px 32px;
+    background: var(--red);
     border: none;
-    border-radius: 999px;
-    color: white;
-    font-weight: 600;
+    color: var(--bg-0);
+    font-weight: 900;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    font-family: Impact, sans-serif;
   }
 
   /* Match modal */
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -266,49 +376,57 @@
 
   .modal {
     width: 100%;
-    max-width: 420px;
-    background: linear-gradient(180deg, #2a1422 0%, #1a0d18 100%);
-    border: 1px solid var(--card-border);
-    border-radius: 24px;
-    overflow: hidden;
+    max-width: 440px;
+    background: var(--bg-1);
+    border: 1px solid var(--red);
     display: flex;
     flex-direction: column;
-    max-height: 85vh;
+    max-height: 88vh;
+    position: relative;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%);
   }
 
   .match-header {
-    padding: 30px 20px 20px;
+    padding: 28px 20px 18px;
     text-align: center;
-    background: linear-gradient(135deg, rgba(255, 90, 122, 0.2), transparent);
+    background: linear-gradient(180deg, var(--match-color, var(--red)) 0%, transparent 100%);
+    position: relative;
   }
 
   .match-title {
-    font-family: Georgia, serif;
-    font-size: 32px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin-bottom: 8px;
+    font-family: Impact, sans-serif;
+    font-size: 36px;
+    letter-spacing: 6px;
+    color: var(--ink);
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+    margin-bottom: 4px;
   }
 
-  .match-sub { color: var(--muted); font-size: 14px; }
+  .match-sub {
+    color: var(--gold);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
 
   .match-photos {
     display: flex;
     justify-content: center;
-    gap: -10px;
-    margin: 16px 0;
+    margin: 18px 0 6px;
+    gap: 12px;
   }
 
   .match-avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    border: 3px solid var(--bg-1);
-    margin: 0 -10px;
+    width: 70px;
+    height: 70px;
+    display: grid;
+    place-items: center;
+    font-family: Impact, sans-serif;
+    font-size: 24px;
+    color: white;
+    letter-spacing: 1px;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    border: 2px solid var(--ink);
   }
 
   .chat-area {
@@ -318,43 +436,44 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    min-height: 200px;
+    min-height: 220px;
+    background: var(--bg-2);
   }
 
   .msg {
-    max-width: 75%;
+    max-width: 78%;
     padding: 10px 14px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.4;
+    font-size: 13.5px;
+    line-height: 1.5;
     animation: slidein 0.25s ease-out;
+    letter-spacing: 0.3px;
   }
 
   @keyframes slidein {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   .msg.them {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: var(--bg-1);
+    border-left: 3px solid var(--match-color, var(--red));
     align-self: flex-start;
-    border-bottom-left-radius: 4px;
   }
 
   .msg.me {
-    background: linear-gradient(135deg, var(--accent) 0%, #e84874 100%);
-    color: white;
+    background: var(--red);
+    color: var(--bg-0);
     align-self: flex-end;
-    border-bottom-right-radius: 4px;
+    font-weight: 600;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
   }
 
   .typing {
     display: flex;
     gap: 4px;
     padding: 12px 16px;
-    background: var(--card-bg);
-    border-radius: 18px;
+    background: var(--bg-1);
+    border-left: 3px solid var(--match-color, var(--red));
     align-self: flex-start;
     width: fit-content;
   }
@@ -371,7 +490,7 @@
   .typing span:nth-child(3) { animation-delay: 0.3s; }
 
   @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
     30% { transform: translateY(-6px); opacity: 1; }
   }
 
@@ -379,174 +498,282 @@
     display: flex;
     gap: 8px;
     padding: 14px 16px;
-    border-top: 1px solid var(--card-border);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: var(--bg-1);
   }
 
   .chat-input input {
     flex: 1;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: 999px;
-    padding: 10px 16px;
+    background: var(--bg-2);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 11px 16px;
     color: var(--ink);
     outline: none;
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    font-family: inherit;
   }
 
-  .chat-input input:focus { border-color: var(--accent); }
+  .chat-input input:focus { border-color: var(--red); }
 
   .chat-input button {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    background: var(--red);
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    color: white;
-    font-size: 18px;
+    width: 44px;
+    color: var(--bg-0);
+    font-size: 20px;
     cursor: pointer;
+    font-weight: 900;
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
   }
 
   .close-btn {
     position: absolute;
-    top: 14px;
-    right: 18px;
+    top: 12px;
+    right: 16px;
     background: transparent;
     border: none;
-    color: var(--muted);
+    color: var(--ink);
     font-size: 22px;
     cursor: pointer;
     padding: 4px 10px;
+    z-index: 5;
+    font-family: Impact, sans-serif;
   }
 
-  .modal-wrap { position: relative; }
+  .nav-link {
+    margin-top: 30px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .nav-link:hover { color: var(--teal); }
+
+  /* Mobile responsive */
+  @media (max-width: 480px) {
+    body { padding: 14px 12px 60px; }
+    body::before, body::after { width: 40px; height: 40px; }
+    .logo { font-size: 24px; letter-spacing: 2px; }
+    .rank-pill { font-size: 10px; padding: 5px 10px; }
+    .deck { height: min(540px, calc(100vh - 220px)); max-width: 100%; }
+    .portrait-codename { font-size: clamp(56px, 18vw, 78px); letter-spacing: 4px; }
+    .portrait-icon { font-size: 44px; bottom: 10px; right: 12px; }
+    .card-realname { font-size: 17px; }
+    .card-bio { font-size: 12.5px; }
+    .action-btn { width: 56px; height: 56px; font-size: 22px; }
+    .actions { gap: 16px; }
+    .modal { max-height: 92vh; }
+    .match-title { font-size: 28px; letter-spacing: 4px; }
+    .match-avatar { width: 60px; height: 60px; font-size: 20px; }
+  }
+
+  @media (max-height: 700px) {
+    .deck { height: calc(100vh - 200px); }
+    .portrait-codename { font-size: clamp(48px, 14vw, 78px); }
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Kindling</div>
-  <div class="profile-pill">📍 Your Area</div>
+  <div class="logo">VALOR<span>INK</span></div>
+  <div class="rank-pill">▲ Diamond II</div>
 </header>
 
 <div class="deck" id="deck">
   <div class="empty-state" id="emptyState">
-    <h2>That's everyone for now</h2>
-    <p>You've seen every soul within a hundred miles. Want another spin?</p>
-    <button class="refresh-btn" onclick="resetDeck()">Refresh the pool</button>
+    <h2>QUEUE EMPTY</h2>
+    <p>You've cycled the entire roster. Want to re-queue?</p>
+    <button class="refresh-btn" onclick="resetDeck()">REDEPLOY</button>
   </div>
 </div>
 
 <div class="actions">
-  <button class="action-btn nope" onclick="swipe('left')" aria-label="Pass">✕</button>
-  <button class="action-btn like" onclick="swipe('right')" aria-label="Like">♥</button>
+  <div class="action-col">
+    <button class="action-btn nope" onclick="swipe('left')" aria-label="Decline">✕</button>
+    <div class="action-label">Decline</div>
+  </div>
+  <div class="action-col">
+    <button class="action-btn like" onclick="swipe('right')" aria-label="Queue">⌖</button>
+    <div class="action-label">Queue Up</div>
+  </div>
 </div>
 
+<a class="nav-link" href="kindling.html">← try Kindling (general)</a>
+
 <div class="modal-backdrop" id="modal">
-  <div class="modal-wrap">
-    <div class="modal">
-      <button class="close-btn" onclick="closeModal()">✕</button>
-      <div class="match-header">
-        <div class="match-title">It's a match.</div>
-        <div class="match-sub" id="matchSub"></div>
-        <div class="match-photos">
-          <div class="match-avatar" style="background-image: url('https://i.pravatar.cc/200?img=12')"></div>
-          <div class="match-avatar" id="matchAvatar"></div>
-        </div>
+  <div class="modal" id="modalInner">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="match-header">
+      <div class="match-title">DUO LOCKED</div>
+      <div class="match-sub" id="matchSub"></div>
+      <div class="match-photos">
+        <div class="match-avatar" style="background: linear-gradient(135deg, #fa4454, #bd3944);">LO</div>
+        <div class="match-avatar" id="matchAvatar"></div>
       </div>
-      <div class="chat-area" id="chatArea"></div>
-      <div class="chat-input">
-        <input type="text" id="chatInput" placeholder="Say something..." autocomplete="off" />
-        <button onclick="sendMessage()">➤</button>
-      </div>
+    </div>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="chat-input">
+      <input type="text" id="chatInput" placeholder="Message your duo..." autocomplete="off" />
+      <button onclick="sendMessage()">➤</button>
     </div>
   </div>
 </div>
 
 <script>
-  const profiles = [
+  const agents = [
     {
-      name: "Mira Castellanos",
-      age: 28,
-      role: "Art conservator",
-      photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600",
-      bio: "I spend my days repairing damaged paintings under a lamp the size of a small moon. Looking for someone who doesn't mind that I smell faintly of turpentine.",
-      tags: ["museums", "rainy walks", "espresso"],
+      codename: "JETT",
+      realname: "Sunwoo Han",
+      origin: "South Korea",
+      role: "Duelist",
+      rank: "Radiant",
+      color: "#7CC4D6",
+      colorDark: "#3a8a9e",
+      icon: "🌪",
+      bio: "I'm in and out before you blink. Don't try to keep up — try to be useful. Also: if you can't aim, don't queue with me. I'll carry, but I want a smile out of it.",
+      tags: ["operator god", "blink dagger", "no scope only"],
       chat: [
-        "you don't look like someone who reads. prove me wrong.",
-        "if you say one more clever thing I might have to invite you over.",
-        "tell me something true that you've never told anyone."
+        "you better aim better than you flirt.",
+        "yeah, yeah. tell me what rank you actually peak.",
+        "I dive first. you watch my back. simple."
       ]
     },
     {
-      name: "Yuki Brennan",
-      age: 26,
-      role: "Jazz pianist",
-      photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600",
-      bio: "Half Osaka, half Dublin, fully exhausted. I play at a basement bar on 4th from 11pm to 2am. Come find me. Order anything but the house wine.",
-      tags: ["late nights", "vinyl", "ramen runs"],
+      codename: "SAGE",
+      realname: "Ling Ying Wei",
+      origin: "China",
+      role: "Sentinel",
+      rank: "Immortal",
+      color: "#8FE0B8",
+      colorDark: "#3d8c63",
+      icon: "❅",
+      bio: "I keep my team alive. I expect the same energy from a partner. I'm soft until I'm not. I read tea leaves, I read minds, and I read entry frags faster than your duelist.",
+      tags: ["res god", "wall king", "patient"],
       chat: [
-        "you up? bad question. but also.",
-        "what's the last song that wrecked you?",
-        "I get off work at two. there's a noodle place that's still open."
+        "hello. you played safe last round. I like that.",
+        "be honest. did you queue with me for the heals.",
+        "I have tea brewing. talk to me while it steeps."
       ]
     },
     {
-      name: "Aisha Volkov",
-      age: 30,
-      role: "Paramedic",
-      photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600",
-      bio: "I read Camus on my lunch breaks and I've seen worse than your ex's text history. Don't be boring. Be honest or be useful, ideally both.",
-      tags: ["philosophy", "early mornings", "black coffee"],
+      codename: "VIPER",
+      realname: "Sabine Callas",
+      origin: "United States",
+      role: "Controller",
+      rank: "Immortal",
+      color: "#4a7d4a",
+      colorDark: "#2a5530",
+      icon: "☣",
+      bio: "I'm a chemist. I don't do small talk and I don't do losing. If you can't push through my smoke, you don't deserve to follow me into it. Earn the date. Earn everything.",
+      tags: ["lineup gremlin", "post-plant queen", "cold"],
       chat: [
-        "okay you matched with me, now what's the plan, soldier.",
-        "I'm off shift at 7. you cook?",
-        "tell me your worst opinion. I'll grade it."
+        "convince me you're worth my fuel.",
+        "I don't repeat myself. so listen.",
+        "you flinch in my smoke and we're done."
       ]
     },
     {
-      name: "Cleo Marchetti",
-      age: 27,
-      role: "Tattoo artist",
-      photo: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600",
-      bio: "I run a shop in the warehouse district. I have a cat named Saint and a sleeve I'm still finishing. Don't ask me to draw your girlfriend's name on you. I will.",
-      tags: ["ink", "whiskey", "old westerns"],
+      codename: "REYNA",
+      realname: "Zyanya Mondragón",
+      origin: "Mexico",
+      role: "Duelist",
+      rank: "Radiant",
+      color: "#A06FD8",
+      colorDark: "#5a3580",
+      icon: "♛",
+      bio: "Mi amor — I feed on kills and compliments. Don't bring me flowers, bring me frags. I go god-mode when I'm in the mood, and I'm always in the mood when someone's watching.",
+      tags: ["solo queue terror", "dismiss pro", "vampiric"],
       chat: [
-        "you've got a face I'd ink for free. that's a high compliment from me.",
-        "my chair's open thursday. or my apartment. depends.",
-        "are you the kind of guy who actually shows up?"
+        "mi cielo. you swiped on a duelist. brave.",
+        "feed me a soul. I'll feed you back.",
+        "I want someone who watches me clutch and doesn't get jealous."
       ]
     },
     {
-      name: "Ren Ashworth-Tanaka",
-      age: 29,
-      role: "Video game writer",
-      photo: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600",
-      bio: "I write quest dialogue for a studio you've heard of. I live in a hoodie. I will absolutely lore-dump you on a first date and I won't apologize for it.",
-      tags: ["RPGs", "ramen", "rainy sundays"],
+      codename: "KILLJOY",
+      realname: "Klara Böhringer",
+      origin: "Germany",
+      role: "Sentinel",
+      rank: "Immortal",
+      color: "#F5C13E",
+      colorDark: "#a68420",
+      icon: "⚙",
+      bio: "Engineer. I built my first turret at eleven. I run two monitors, a soldering iron station, and a heart that, statistically speaking, has room for exactly one more. Don't break it.",
+      tags: ["nanoswarm enjoyer", "lockdown ult", "nerd"],
       chat: [
-        "okay quick: tabletop, console, or PC. wrong answers get unmatched.",
-        "I just hit a deadline. drinks?",
-        "you swipe right on a lot of writers or am I just lucky."
+        "you saw my profile. you swiped. very smart of you.",
+        "Hallo. I am running diagnostics on this conversation.",
+        "I can build you something. for the right person. mm."
       ]
     },
     {
-      name: "Sasha Lindqvist",
-      age: 31,
-      role: "Climbing instructor",
-      photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600",
-      bio: "Born in Göteborg, raised on cliffs. My knuckles are scarred and my apartment is full of plants. I want someone who hikes before brunch and stays for dinner.",
-      tags: ["climbing", "sourdough", "northern lights"],
+      codename: "NEON",
+      realname: "Tala Valdez",
+      origin: "Philippines",
+      role: "Duelist",
+      rank: "Diamond",
+      color: "#5DC3F5",
+      colorDark: "#2a6f96",
+      icon: "⚡",
+      bio: "I run faster than your aim. College kid by day, lightning rod by night. I will absolutely outpeek you and then ask if you want boba after. Kuya, I'm a lot. You'll love it.",
+      tags: ["fastest entry", "stun queen", "chaotic"],
       chat: [
-        "you look like you've never been outside. I can fix that.",
-        "saturday. 6am. the bluff. yes or no.",
-        "what's the heaviest thing you've ever carried, literal or otherwise."
+        "OH MY GOD okay you matched with me hi hi hi",
+        "wanna duo right now? right now right now?",
+        "I'm caffeinated. you've been warned, kuya."
+      ]
+    },
+    {
+      codename: "RAZE",
+      realname: "Tayane Alves",
+      origin: "Brazil",
+      role: "Duelist",
+      rank: "Immortal",
+      color: "#F5934A",
+      colorDark: "#a65f25",
+      icon: "✸",
+      bio: "Boom. Boom. Bigger boom. I come from São Paulo and I make everything louder. Bring me to a party, I'll start one. Bring me into a site, I'll end it. Same energy either way.",
+      tags: ["satchel jumper", "showstopper", "festa girl"],
+      chat: [
+        "oi gato! you ready to make some noise?",
+        "I just satchel'd onto your profile. literally.",
+        "festa tonight at my place. you bring the drinks."
+      ]
+    },
+    {
+      codename: "FADE",
+      realname: "Hazal Demir",
+      origin: "Turkey",
+      role: "Initiator",
+      rank: "Immortal",
+      color: "#5e4d6e",
+      colorDark: "#332840",
+      icon: "◐",
+      bio: "I see your nightmares. The ones you don't admit to. The ones with your ex still in them. Don't worry — I won't tell. I'll just know. Meet me in your sleep.",
+      tags: ["intel queen", "haunt clutch", "gothic"],
+      chat: [
+        "I've already seen this conversation in a dream.",
+        "tell me what you're afraid of. start small.",
+        "you sleep with the light on. I knew before I asked."
       ]
     }
   ];
 
-  let deck = [...profiles];
+  let deck = shuffle([...agents]);
   let currentMatch = null;
   let chatTurn = 0;
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
 
   function el(tag, cls, html) {
     const e = document.createElement(tag);
@@ -572,15 +799,22 @@
       card.style.transform = `scale(${1 - realIdx * 0.04}) translateY(${realIdx * 12}px)`;
       card.style.zIndex = 10 - realIdx;
       card.dataset.idx = realIdx;
+      card.style.setProperty('--portrait-bg', `linear-gradient(135deg, ${p.color} 0%, ${p.colorDark} 100%)`);
 
       card.innerHTML = `
-        <div class="card-photo" style="background-image: url('${p.photo}')">
-          <div class="stamp like">LIKE</div>
-          <div class="stamp nope">NOPE</div>
+        <div class="card-portrait">
+          <div class="portrait-role">${p.role}</div>
+          <div class="portrait-codename">${p.codename}</div>
+          <div class="portrait-icon">${p.icon}</div>
+          <div class="stamp like">QUEUE</div>
+          <div class="stamp nope">DECLINE</div>
         </div>
         <div class="card-info">
-          <div class="card-name">${p.name} <span class="card-age">${p.age}</span></div>
-          <div class="card-role">${p.role}</div>
+          <div class="card-name-row">
+            <div class="card-realname">${p.realname}</div>
+            <div class="card-rank">▲ ${p.rank}</div>
+          </div>
+          <div class="card-origin">⌖ ${p.origin}</div>
           <div class="card-bio">${p.bio}</div>
           <div class="card-tags">
             ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
@@ -655,12 +889,16 @@
   function openMatch(profile) {
     currentMatch = profile;
     chatTurn = 0;
-    document.getElementById('matchSub').textContent = `You and ${profile.name.split(' ')[0]} liked each other.`;
-    document.getElementById('matchAvatar').style.backgroundImage = `url('${profile.photo}')`;
+    document.getElementById('matchSub').textContent = `You and ${profile.codename} are queued together.`;
+    const av = document.getElementById('matchAvatar');
+    av.textContent = profile.codename.slice(0, 3);
+    av.style.background = `linear-gradient(135deg, ${profile.color}, ${profile.colorDark})`;
+
+    document.getElementById('modalInner').style.setProperty('--match-color', profile.color);
     document.getElementById('chatArea').innerHTML = '';
     document.getElementById('modal').classList.add('show');
 
-    setTimeout(() => themTypes(profile.chat[0]), 600);
+    setTimeout(() => themTypes(profile.chat[0]), 700);
   }
 
   function themTypes(text) {
@@ -698,30 +936,63 @@
 
   function generateReply(userText) {
     const t = userText.toLowerCase();
-    const name = currentMatch.name.split(' ')[0];
+    const code = currentMatch.codename;
+
+    // Per-agent flavored replies
+    const flavors = {
+      JETT: [
+        "yeah yeah. less talking, more aiming.",
+        "you're cute. doesn't change my K/D.",
+        "I'm already on B site. catch up."
+      ],
+      SAGE: [
+        "be patient. I'll come find you.",
+        "you talk softly. I like that.",
+        "stay alive for me. I'll heal the rest."
+      ],
+      VIPER: [
+        "interesting. keep talking.",
+        "you haven't lost me yet. that's something.",
+        "I don't reward effort. only results."
+      ],
+      REYNA: [
+        "mmm. say it again, mi amor.",
+        "queue with me. I want to watch you watch me.",
+        "you're sweet. I'll keep you, for now."
+      ],
+      KILLJOY: [
+        "I am calculating compatibility. results: very promising.",
+        "ja, that was clever. say something else.",
+        "you have my attention. that's rare. use it well."
+      ],
+      NEON: [
+        "OH MY GOD okay okay tell me more!!",
+        "you're funny!! kuya are you free saturday??",
+        "lol I'm vibrating. that's normal for me."
+      ],
+      RAZE: [
+        "kkkk you're funny gato!",
+        "BOOM. that's me reacting to your message.",
+        "samba lessons. my place. eight."
+      ],
+      FADE: [
+        "I knew you'd say that.",
+        "you're hiding something. it's fine. I'll find it.",
+        "close your eyes. I'll be there."
+      ]
+    };
 
     if (/\?$/.test(t)) {
-      const answers = [
-        "depends. how badly do you want to know.",
-        "you first.",
-        "ask me in person.",
-        "mm. that's a question for the third drink, not the third message."
-      ];
-      return answers[Math.floor(Math.random() * answers.length)];
+      const qs = ["ask me when I'm off comms.", "depends what I get out of it.", "you first.", "make me want to answer."];
+      return qs[Math.floor(Math.random() * qs.length)];
     }
-    if (/hi|hey|hello/.test(t)) return `hi yourself. took you long enough.`;
-    if (/coffee|drink|dinner|date/.test(t)) return `okay. when. and don't pick somewhere with a wine list longer than the menu.`;
-    if (/cute|hot|beautiful|pretty/.test(t)) return `careful. I bruise easy and I remember everything.`;
-    if (/love|miss/.test(t)) return `slow down, cowboy. we just matched.`;
+    if (/queue|duo|play|game|match/.test(t)) return `okay. let's run it. don't throw.`;
+    if (/cute|hot|pretty|beautiful|gorgeous/.test(t)) return `careful. flattery works on me about thirty percent of the time.`;
+    if (/love|miss/.test(t)) return `slow down. we're not on the same comms yet.`;
+    if (/rank|elo/.test(t)) return `peak ${currentMatch.rank}. obviously.`;
 
-    const generic = [
-      "tell me more.",
-      "okay I like you. don't make me regret it.",
-      "say that to my face on saturday.",
-      `you're trouble, ${'you'}. I'm into it.`,
-      "mm. keep going."
-    ];
-    return generic[Math.floor(Math.random() * generic.length)];
+    const pool = flavors[code] || ["mm. keep going.", "tell me more.", "interesting."];
+    return pool[Math.floor(Math.random() * pool.length)];
   }
 
   function closeModal() {
@@ -730,7 +1001,7 @@
   }
 
   function resetDeck() {
-    deck = [...profiles].sort(() => Math.random() - 0.5);
+    deck = shuffle([...agents]);
     renderDeck();
   }
 
