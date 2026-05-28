@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Chat with <%= other.name %> — DuoDate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="chat-page">
+  <header class="chat-header">
+    <a href="/matches" class="back">←</a>
+    <% if (other.avatar) { %><img src="<%= other.avatar %>" alt=""><% } %>
+    <div>
+      <div class="name"><%= other.name %></div>
+      <div class="muted small">
+        <% if (other.valorant_rank) { %><%= other.valorant_rank %><% } %>
+        <% if (other.main_role) { %> · <%= other.main_role %><% } %>
+        <% if (other.riot_id) { %> · <%= other.riot_id %><% } %>
+      </div>
+    </div>
+  </header>
+
+  <div class="messages" id="messages">
+    <% if (msgs.length === 0) { %>
+      <div class="msg-empty">Say hi 👋</div>
+    <% } %>
+    <% msgs.forEach(m => { %>
+      <div class="msg <%= m.from_user === me ? 'mine' : 'theirs' %>"><%= m.body %></div>
+    <% }) %>
+  </div>
+
+  <form method="post" class="composer" autocomplete="off">
+    <input type="text" name="body" placeholder="message…" maxlength="1000" required autofocus>
+    <button class="btn primary">Send</button>
+  </form>
+
+  <script>
+    const m = document.getElementById('messages');
+    if (m) m.scrollTop = m.scrollHeight;
+  </script>
+</body>
+</html>

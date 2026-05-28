@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Your Profile — DuoDate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <% if (!onboarding) { %>
+    <nav class="topnav">
+      <a href="/browse">Browse</a>
+      <a href="/matches">Matches</a>
+      <a href="/profile/edit" class="active">Profile</a>
+      <a href="/logout">Sign out</a>
+    </nav>
+  <% } %>
+
+  <div class="container narrow">
+    <h1><%= onboarding ? 'Set up your profile' : 'Edit your profile' %></h1>
+    <% if (onboarding) { %>
+      <p class="muted">Fill this in so other players can find you. The more detail, the better matches.</p>
+    <% } %>
+
+    <form method="post" enctype="multipart/form-data" class="form-grid">
+      <div class="form-section">
+        <h2 class="section-title">— BASICS</h2>
+        <div class="avatar-row">
+          <% if (user.avatar) { %><img src="<%= user.avatar %>" class="avatar" alt=""><% } %>
+          <label class="file-label">
+            <input type="file" name="photo" accept="image/*">
+            <span>📷 Change photo</span>
+          </label>
+        </div>
+        <label>Age
+          <input type="number" name="age" min="18" max="99" value="<%= user.age || '' %>" required>
+        </label>
+        <label>Gender
+          <select name="gender">
+            <option value="">— select —</option>
+            <% ['woman','man','nonbinary','other'].forEach(g => { %>
+              <option value="<%= g %>" <%= user.gender===g?'selected':'' %>><%= g %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Looking for
+          <select name="looking_for">
+            <option value="">— select —</option>
+            <% ['women','men','everyone'].forEach(g => { %>
+              <option value="<%= g %>" <%= user.looking_for===g?'selected':'' %>><%= g %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Timezone
+          <input type="text" name="timezone" maxlength="20" placeholder="EST / PST / EU / SEA..." value="<%= user.timezone || '' %>">
+        </label>
+      </div>
+
+      <div class="form-section valorant-section">
+        <h2 class="section-title"><span class="val-tag">VAL</span> VALORANT</h2>
+        <label>Riot ID
+          <input type="text" name="riot_id" maxlength="40" placeholder="Username#TAG" value="<%= user.riot_id || '' %>">
+        </label>
+        <label>Current rank
+          <select name="valorant_rank">
+            <option value="">— unranked / hidden —</option>
+            <% ['Iron','Bronze','Silver','Gold','Platinum','Diamond','Ascendant','Immortal','Radiant'].forEach(r => { %>
+              <option value="<%= r %>" <%= user.valorant_rank===r?'selected':'' %>><%= r %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Main role
+          <select name="main_role">
+            <option value="">— select —</option>
+            <% ['Duelist','Controller','Sentinel','Initiator','Flex'].forEach(r => { %>
+              <option value="<%= r %>" <%= user.main_role===r?'selected':'' %>><%= r %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Main agents
+          <input type="text" name="main_agents" maxlength="200" placeholder="Jett, Reyna, Phoenix..." value="<%= user.main_agents || '' %>">
+        </label>
+        <label>Playstyle
+          <select name="playstyle">
+            <option value="">— select —</option>
+            <% ['Casual','Competitive','Both','Just for fun'].forEach(p => { %>
+              <option value="<%= p %>" <%= user.playstyle===p?'selected':'' %>><%= p %></option>
+            <% }) %>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">— OTHER GAMES</h2>
+        <p class="muted small">Pick all you play — helps us match you with multi-game queue buddies.</p>
+        <div class="checkbox-grid">
+          <% ['League of Legends','CS2','Apex Legends','Overwatch 2','Fortnite','Rainbow Six','Dota 2','Rocket League','Minecraft','Roblox','Marvel Rivals','Deadlock'].forEach(g => {
+            const selected = (user.other_games || '').split(',').includes(g);
+          %>
+            <label class="checkbox-item">
+              <input type="checkbox" name="other_games" value="<%= g %>" <%= selected?'checked':'' %>>
+              <span><%= g %></span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">— ABOUT YOU</h2>
+        <label>Discord tag (optional, shared after match)
+          <input type="text" name="discord_tag" maxlength="40" placeholder="username" value="<%= user.discord_tag || '' %>">
+        </label>
+        <label>What you're looking for
+          <select name="seeking">
+            <option value="">— select —</option>
+            <% ['Duo partner','5-stack friends','Dating','Both / open'].forEach(s => { %>
+              <option value="<%= s %>" <%= user.seeking===s?'selected':'' %>><%= s %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>Bio (max 500 chars)
+          <textarea name="bio" rows="4" maxlength="500" placeholder="tell ppl about you — vibe, schedule, what you want in a duo..."><%= user.bio || '' %></textarea>
+        </label>
+      </div>
+
+      <button class="btn primary big" type="submit">
+        <%= onboarding ? 'Save & Start Browsing →' : 'Save Changes' %>
+      </button>
+    </form>
+  </div>
+</body>
+</html>

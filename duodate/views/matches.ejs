@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Matches — DuoDate</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="topnav">
+    <a href="/browse">Browse</a>
+    <a href="/matches" class="active">Matches</a>
+    <a href="/profile/edit">Profile</a>
+    <a href="/logout">Sign out</a>
+  </nav>
+
+  <div class="container">
+    <h1>Your Duos</h1>
+    <% if (matches.length === 0) { %>
+      <div class="card center-text">
+        <p>No matches yet — keep swiping in <a href="/browse">Browse</a>.</p>
+      </div>
+    <% } else { %>
+      <div class="match-grid">
+        <% matches.forEach(m => { %>
+          <a class="match-card <%= String(m.id)===newId?'new':'' %>" href="/chat/<%= m.id %>">
+            <% if (m.avatar) { %>
+              <img src="<%= m.avatar %>" alt="">
+            <% } else { %>
+              <div class="match-avatar-placeholder">🎮</div>
+            <% } %>
+            <div class="match-info">
+              <strong><%= m.name %></strong>
+              <span class="muted">, <%= m.age %></span>
+              <div class="match-badges">
+                <% if (m.valorant_rank) { %><span class="badge rank rank-<%= m.valorant_rank.toLowerCase() %>"><%= m.valorant_rank %></span><% } %>
+                <% if (m.main_role) { %><span class="badge role"><%= m.main_role %></span><% } %>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>
