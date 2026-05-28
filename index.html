@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dusk — Meet Someone Tonight</title>
+<style>
+  :root {
+    --bg-0: #0c0a18;
+    --bg-1: #1a1530;
+    --bg-2: #110d22;
+    --accent: #ff7a5c;
+    --accent-2: #ffb14a;
+    --violet: #9b5cff;
+    --teal: #5cf2d6;
+    --ink: #f6efea;
+    --muted: #8e859a;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --danger: #ff4d6d;
+    --success: #5cf2a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    background:
+      radial-gradient(900px 500px at -10% -10%, rgba(155, 92, 255, 0.25) 0%, transparent 50%),
+      radial-gradient(700px 400px at 110% 110%, rgba(255, 122, 92, 0.2) 0%, transparent 50%),
+      linear-gradient(180deg, var(--bg-0) 0%, var(--bg-2) 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 90px;
+    overflow-x: hidden;
+  }
+
+  .screen { width: 100%; max-width: 440px; display: none; flex-direction: column; align-items: stretch; flex: 1; }
+  .screen.active { display: flex; }
+
+  /* ---------------- LOGIN SCREEN ---------------- */
+  #screen-login {
+    justify-content: center;
+    text-align: center;
+    gap: 18px;
+    padding-top: 40px;
+  }
+
+  .brand {
+    font-family: "Georgia", "Times New Roman", serif;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 4px;
+  }
+  .brand-sub {
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+  }
+
+  .auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 26px 22px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align: left;
+  }
+
+  .auth-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .auth-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .btn-google {
+    width: 100%;
+    background: #fff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  .btn-google:hover { transform: translateY(-1px); box-shadow: 0 10px 30px -10px rgba(255,255,255,0.2); }
+  .btn-google img, .btn-google svg { width: 18px; height: 18px; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--card-border);
+  }
+
+  .field {
+    margin-bottom: 12px;
+  }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: var(--ink);
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); }
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 30px -8px var(--accent); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  .auth-switch {
+    text-align: center;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .auth-switch a {
+    color: var(--accent-2);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .auth-switch a:hover { text-decoration: underline; }
+
+  .demo-banner {
+    background: rgba(255, 177, 74, 0.12);
+    border: 1px solid rgba(255, 177, 74, 0.3);
+    color: var(--accent-2);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .demo-banner b { color: #fff; }
+
+  .err {
+    background: rgba(255, 77, 109, 0.12);
+    border: 1px solid rgba(255, 77, 109, 0.3);
+    color: var(--danger);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    margin-top: 10px;
+    display: none;
+  }
+  .err.show { display: block; }
+
+  /* ---------------- TOP BAR (when logged in) ---------------- */
+  .topbar {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .logo-small {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+  .icon-btn {
+    width: 38px; height: 38px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    display: grid; place-items: center;
+    font-size: 16px;
+    position: relative;
+  }
+  .icon-btn:hover { border-color: var(--accent); }
+  .badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    background: var(--accent);
+    color: white;
+    border-radius: 10px;
+    font-size: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  /* ---------------- DECK ---------------- */
+  .deck {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: min(560px, calc(100vh - 240px));
+    margin: 0 auto 24px;
+  }
+
+  .card {
+    position: absolute; inset: 0;
+    background: var(--bg-1);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.3, 1.2), opacity 0.35s;
+    user-select: none;
+    touch-action: none;
+    box-shadow: 0 25px 60px -20px rgba(0,0,0,0.7);
+  }
+  .card.dragging { transition: none; }
+  .card-photo {
+    height: 62%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .card-photo::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.7));
+  }
+  .photo-fallback {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-size: 90px;
+    font-family: Georgia, serif;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+  }
+  .card-info {
+    padding: 18px 22px 24px;
+    height: 38%;
+    display: flex; flex-direction: column;
+    gap: 6px;
+  }
+  .card-name { font-size: 22px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; }
+  .card-age { color: var(--muted); font-size: 17px; font-weight: 400; }
+  .card-bio {
+    font-size: 13px; line-height: 1.5;
+    color: var(--ink); opacity: 0.85;
+  }
+  .card-tags {
+    margin-top: auto;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding-top: 6px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    color: var(--muted);
+  }
+
+  .stamp {
+    position: absolute;
+    top: 36px;
+    font-weight: 900;
+    font-size: 32px;
+    padding: 6px 16px;
+    border: 4px solid;
+    border-radius: 10px;
+    letter-spacing: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s;
+    z-index: 3;
+  }
+  .stamp.like { right: 24px; color: var(--success); border-color: var(--success); transform: rotate(15deg); }
+  .stamp.nope { left: 24px; color: var(--danger); border-color: var(--danger); transform: rotate(-15deg); }
+
+  .actions {
+    display: flex; gap: 18px;
+    justify-content: center;
+  }
+  .action-btn {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--ink);
+    font-size: 24px;
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .action-btn:hover { transform: scale(1.08); }
+  .action-btn.nope { color: var(--danger); }
+  .action-btn.like { color: var(--success); }
+  .action-btn.nope:hover { box-shadow: 0 0 25px -5px var(--danger); }
+  .action-btn.like:hover { box-shadow: 0 0 25px -5px var(--success); }
+
+  .empty-state {
+    position: absolute; inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 40px;
+    color: var(--muted);
+    background: var(--card-bg);
+    border-radius: 22px;
+    border: 1px dashed var(--card-border);
+  }
+  .empty-state h2 { color: var(--ink); margin-bottom: 8px; font-family: Georgia, serif; font-size: 22px; }
+  .empty-state p { line-height: 1.5; font-size: 13px; }
+
+  /* ---------------- MATCHES LIST ---------------- */
+  #screen-matches { gap: 14px; }
+  .match-row {
+    display: flex; align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .match-row:hover { border-color: var(--accent); background: rgba(255,255,255,0.08); }
+  .match-avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    flex-shrink: 0;
+    background-color: var(--violet);
+    display: grid; place-items: center;
+    font-weight: 700;
+    color: white;
+  }
+  .match-meta { flex: 1; min-width: 0; }
+  .match-meta-name { font-weight: 600; font-size: 15px; }
+  .match-meta-preview {
+    color: var(--muted); font-size: 12.5px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+  .match-row .badge { position: static; align-self: center; }
+
+  /* ---------------- CHAT SCREEN ---------------- */
+  #screen-chat { gap: 0; padding-bottom: 0; }
+  .chat-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--card-border);
+    margin-bottom: 12px;
+  }
+  .chat-header .match-avatar { width: 42px; height: 42px; font-size: 14px; }
+  .chat-header-name { font-weight: 600; }
+  .chat-header-sub { font-size: 11px; color: var(--muted); }
+  .chat-back {
+    background: transparent; border: none; color: var(--ink);
+    font-size: 22px; cursor: pointer; padding: 4px 8px;
+  }
+  .chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 4px;
+    display: flex; flex-direction: column;
+    gap: 8px;
+    min-height: 300px;
+  }
+  .msg {
+    max-width: 78%;
+    padding: 9px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.45;
+    word-wrap: break-word;
+    animation: slidein 0.2s ease-out;
+  }
+  @keyframes slidein {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg.them {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.me {
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-time {
+    font-size: 10px;
+    opacity: 0.6;
+    margin-top: 3px;
+  }
+  .chat-input {
+    display: flex; gap: 8px;
+    padding: 12px 0 18px;
+    border-top: 1px solid var(--card-border);
+  }
+  .chat-input input {
+    flex: 1;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 11px 16px;
+    color: var(--ink);
+    outline: none;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .chat-input input:focus { border-color: var(--accent); }
+  .chat-input button {
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    border: none; border-radius: 50%;
+    width: 42px; height: 42px;
+    color: white; font-size: 18px;
+    cursor: pointer;
+  }
+
+  /* ---------------- MATCH MODAL ---------------- */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 380px;
+    width: 100%;
+  }
+  .modal-title {
+    font-family: Georgia, serif;
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 6px;
+  }
+  .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .modal-avatars {
+    display: flex; justify-content: center;
+    gap: 0;
+    margin-bottom: 24px;
+  }
+  .modal-avatar {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background-size: cover; background-position: center;
+    border: 4px solid var(--bg-1);
+    margin: 0 -10px;
+    background-color: var(--violet);
+    display: grid; place-items: center;
+    font-weight: 700;
+    color: white;
+    font-size: 24px;
+  }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------------- LOADING ---------------- */
+  #loading {
+    position: fixed; inset: 0;
+    background: var(--bg-0);
+    display: grid; place-items: center;
+    z-index: 200;
+  }
+  #loading.hidden { display: none; }
+  .spinner {
+    width: 38px; height: 38px;
+    border: 3px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast {
+    position: fixed;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-1);
+    border: 1px solid var(--card-border);
+    color: var(--ink);
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    z-index: 150;
+    transition: transform 0.3s;
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    .brand { font-size: 44px; }
+    .auth-card { padding: 22px 18px; }
+    .deck { height: min(540px, calc(100vh - 220px)); }
+    .action-btn { width: 56px; height: 56px; font-size: 22px; }
+    .modal-title { font-size: 30px; }
+    .modal-avatar { width: 72px; height: 72px; font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div></div>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div class="screen" id="screen-login">
+  <div class="brand">dusk</div>
+  <div class="brand-sub">meet someone tonight.</div>
+
+  <div class="auth-card">
+    <div id="demoBanner" class="demo-banner" style="display:none;">
+      <b>Demo mode.</b> Firebase isn't configured yet — login is simulated and data lives in this browser only.
+      Set up <code>firebase-config.js</code> to enable real logins. See README.
+    </div>
+
+    <div class="auth-title" id="authTitle">Welcome back</div>
+    <div class="auth-subtitle" id="authSub">Sign in to start swiping</div>
+
+    <button class="btn-google" onclick="window.signInGoogle()">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="divider">OR</div>
+
+    <div id="loginForm">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@somewhere.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" />
+      </div>
+      <button class="btn-primary" onclick="window.signInEmail()">Sign In</button>
+      <div class="err" id="loginErr"></div>
+      <div class="auth-switch">New here? <a onclick="window.toggleAuth(true)">Create an account</a></div>
+    </div>
+
+    <div id="signupForm" style="display:none;">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="you@somewhere.com" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="signupPassword" placeholder="at least 6 characters" />
+      </div>
+      <button class="btn-primary" onclick="window.signUpEmail()">Create Account</button>
+      <div class="err" id="signupErr"></div>
+      <div class="auth-switch">Have an account? <a onclick="window.toggleAuth(false)">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ONBOARDING ============ -->
+<div class="screen" id="screen-onboard">
+  <div class="brand" style="font-size: 40px;">profile</div>
+  <div class="brand-sub">people swipe on what you put here. don't make it boring.</div>
+
+  <div class="auth-card">
+    <div class="field">
+      <label>Display name</label>
+      <input type="text" id="onbName" placeholder="What should we call you?" />
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="onbAge" min="18" max="120" placeholder="18+" />
+    </div>
+    <div class="field">
+      <label>Photo URL (optional)</label>
+      <input type="url" id="onbPhoto" placeholder="https://..." />
+    </div>
+    <div class="field">
+      <label>Bio</label>
+      <textarea id="onbBio" placeholder="A few sentences. Be specific. Boring bios get unmatched."></textarea>
+    </div>
+    <div class="field">
+      <label>Tags (comma separated)</label>
+      <input type="text" id="onbTags" placeholder="hiking, jazz, late nights" />
+    </div>
+    <button class="btn-primary" onclick="window.saveProfile()">Save & Start Swiping</button>
+    <div class="err" id="onbErr"></div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP (DECK) ============ -->
+<div class="screen" id="screen-app">
+  <div class="topbar">
+    <div class="logo-small">dusk</div>
+    <div class="topbar-actions">
+      <button class="icon-btn" onclick="window.showScreen('matches')" title="Matches">
+        💬<span class="badge" id="matchBadge" style="display:none;">0</span>
+      </button>
+      <button class="icon-btn" onclick="window.showScreen('onboard')" title="Edit Profile">✎</button>
+      <button class="icon-btn" onclick="window.signOut()" title="Sign out">⏻</button>
+    </div>
+  </div>
+
+  <div class="deck" id="deck">
+    <div class="empty-state" id="emptyState">
+      <h2>That's everyone for now</h2>
+      <p>You've seen every soul nearby. Check back later when more people join, or open up your matches.</p>
+      <button class="btn-ghost" style="margin-top:16px;" onclick="window.loadDeck()">Refresh</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn nope" onclick="window.swipeAction('left')" aria-label="Pass">✕</button>
+    <button class="action-btn like" onclick="window.swipeAction('right')" aria-label="Like">♥</button>
+  </div>
+</div>
+
+<!-- ============ MATCHES LIST ============ -->
+<div class="screen" id="screen-matches">
+  <div class="topbar">
+    <button class="chat-back" onclick="window.showScreen('app')">←</button>
+    <div class="logo-small">matches</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div id="matchesList"></div>
+  <div id="matchesEmpty" style="text-align:center; color:var(--muted); padding:40px 20px; font-size:14px; display:none;">
+    No matches yet — keep swiping.
+  </div>
+</div>
+
+<!-- ============ CHAT SCREEN ============ -->
+<div class="screen" id="screen-chat">
+  <div class="topbar" style="margin-bottom:0;">
+    <button class="chat-back" onclick="window.showScreen('matches')">←</button>
+    <div class="logo-small">chat</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div class="chat-header">
+    <div class="match-avatar" id="chatAvatar"></div>
+    <div>
+      <div class="chat-header-name" id="chatName"></div>
+      <div class="chat-header-sub" id="chatSub"></div>
+    </div>
+  </div>
+  <div class="chat-area" id="chatArea"></div>
+  <div class="chat-input">
+    <input type="text" id="chatInput" placeholder="Say something..." autocomplete="off" />
+    <button onclick="window.sendChat()">➤</button>
+  </div>
+</div>
+
+<!-- ============ MATCH MODAL ============ -->
+<div class="modal-backdrop" id="matchModal">
+  <div class="modal">
+    <div class="modal-title">It's a match.</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="modal-avatars">
+      <div class="modal-avatar" id="modalMyAvatar"></div>
+      <div class="modal-avatar" id="modalTheirAvatar"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="window.openMatchChat()">Say hi</button>
+      <button class="btn-ghost" onclick="window.closeMatchModal()">Keep swiping</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ APP LOGIC ============ -->
+<script type="module">
+  // Firebase modular SDK (v10) — loaded from CDN
+  let firebaseConfig = null;
+  let useFirebase = false;
+  let auth, db, app;
+  let onAuthStateChanged, signInWithPopup, GoogleAuthProvider,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOutFn, doc, getDoc, setDoc, collection, query, where, getDocs,
+      addDoc, onSnapshot, orderBy, serverTimestamp, updateDoc;
+
+  // Try to load firebase-config.js
+  try {
+    const cfg = await import('./firebase-config.js');
+    if (cfg.firebaseConfig && cfg.firebaseConfig.apiKey && !cfg.firebaseConfig.apiKey.startsWith('YOUR_')) {
+      firebaseConfig = cfg.firebaseConfig;
+      useFirebase = true;
+    }
+  } catch (e) {
+    console.log('[Dusk] firebase-config.js not found — running demo mode.');
+  }
+
+  if (useFirebase) {
+    const fbApp = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js');
+    const fbAuth = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js');
+    const fbStore = await import('https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js');
+    app = fbApp.initializeApp(firebaseConfig);
+    auth = fbAuth.getAuth(app);
+    db = fbStore.getFirestore(app);
+    onAuthStateChanged = fbAuth.onAuthStateChanged;
+    signInWithPopup = fbAuth.signInWithPopup;
+    GoogleAuthProvider = fbAuth.GoogleAuthProvider;
+    createUserWithEmailAndPassword = fbAuth.createUserWithEmailAndPassword;
+    signInWithEmailAndPassword = fbAuth.signInWithEmailAndPassword;
+    signOutFn = fbAuth.signOut;
+    doc = fbStore.doc; getDoc = fbStore.getDoc; setDoc = fbStore.setDoc;
+    collection = fbStore.collection; query = fbStore.query; where = fbStore.where;
+    getDocs = fbStore.getDocs; addDoc = fbStore.addDoc;
+    onSnapshot = fbStore.onSnapshot; orderBy = fbStore.orderBy;
+    serverTimestamp = fbStore.serverTimestamp; updateDoc = fbStore.updateDoc;
+  } else {
+    document.getElementById('demoBanner').style.display = 'block';
+  }
+
+  // ---------- State ----------
+  let currentUser = null;
+  let currentProfile = null;
+  let deck = [];
+  let matches = [];
+  let activeChat = null;
+  let chatUnsub = null;
+
+  // ---------- Demo storage ----------
+  const DEMO_KEY = 'dusk_demo_v1';
+  const demoDB = JSON.parse(localStorage.getItem(DEMO_KEY) || '{"users":{},"likes":{},"matches":{},"messages":{}}');
+  const saveDemo = () => localStorage.setItem(DEMO_KEY, JSON.stringify(demoDB));
+
+  // Seed demo with a few fake users on first run
+  if (!useFirebase && Object.keys(demoDB.users).length === 0) {
+    const seed = [
+      { uid: 'seed-1', displayName: 'Mira Castellanos', age: 28, photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600', bio: "Art conservator. I smell faintly of turpentine and I'm okay with that.", tags: ['museums','rainy walks','espresso'] },
+      { uid: 'seed-2', displayName: 'Yuki Brennan', age: 26, photoURL: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600', bio: "Jazz pianist, basement bar on 4th. Order anything but the house wine.", tags: ['late nights','vinyl','ramen'] },
+      { uid: 'seed-3', displayName: 'Aisha Volkov', age: 30, photoURL: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600', bio: "Paramedic. I read Camus on lunch and I've seen worse than your texts.", tags: ['philosophy','early mornings','black coffee'] },
+      { uid: 'seed-4', displayName: 'Cleo Marchetti', age: 27, photoURL: 'https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=600', bio: "Tattoo artist in the warehouse district. I have a cat named Saint.", tags: ['ink','whiskey','old westerns'] },
+      { uid: 'seed-5', displayName: 'Ren Ashworth', age: 29, photoURL: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', bio: "I write quests for games you've heard of. I live in a hoodie.", tags: ['RPGs','sundays','ramen'] },
+    ];
+    seed.forEach(u => demoDB.users[u.uid] = u);
+    saveDemo();
+  }
+
+  // ---------- UI ----------
+  const $ = id => document.getElementById(id);
+
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $('screen-' + name).classList.add('active');
+    if (name === 'matches') renderMatches();
+  }
+
+  function hideLoading() { $('loading').classList.add('hidden'); }
+
+  function toast(msg, ms = 2500) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), ms);
+  }
+
+  function avatarBG(profile) {
+    if (profile?.photoURL) return `url('${profile.photoURL}')`;
+    return '';
+  }
+
+  function avatarInitial(profile) {
+    return (profile?.displayName || '?').slice(0, 1).toUpperCase();
+  }
+
+  function setAvatar(el, profile) {
+    if (profile?.photoURL) {
+      el.style.backgroundImage = `url('${profile.photoURL}')`;
+      el.textContent = '';
+    } else {
+      el.style.backgroundImage = '';
+      el.textContent = avatarInitial(profile);
+    }
+  }
+
+  // ---------- Auth ----------
+  window.toggleAuth = (toSignup) => {
+    $('loginForm').style.display = toSignup ? 'none' : 'block';
+    $('signupForm').style.display = toSignup ? 'block' : 'none';
+    $('authTitle').textContent = toSignup ? 'Create account' : 'Welcome back';
+    $('authSub').textContent = toSignup ? 'Tell us about you in 30 seconds' : 'Sign in to start swiping';
+  };
+
+  window.signInGoogle = async () => {
+    if (!useFirebase) {
+      // Demo: pretend google login as a random demo user
+      const uid = 'demo-' + Math.random().toString(36).slice(2, 10);
+      handleAuth({ uid, displayName: 'You', email: 'demo@dusk.local', photoURL: '' });
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error(e);
+      showErr('loginErr', e.message);
+    }
+  };
+
+  window.signInEmail = async () => {
+    const email = $('loginEmail').value.trim();
+    const pw = $('loginPassword').value;
+    if (!email || !pw) { showErr('loginErr', 'Enter email and password.'); return; }
+    if (!useFirebase) {
+      const uid = 'demo-' + btoa(email).slice(0, 12);
+      handleAuth({ uid, displayName: email.split('@')[0], email });
+      return;
+    }
+    try {
+      await signInWithEmailAndPassword(auth, email, pw);
+    } catch (e) { showErr('loginErr', friendlyErr(e)); }
+  };
+
+  window.signUpEmail = async () => {
+    const email = $('signupEmail').value.trim();
+    const pw = $('signupPassword').value;
+    if (!email || pw.length < 6) { showErr('signupErr', 'Password needs 6+ characters.'); return; }
+    if (!useFirebase) {
+      const uid = 'demo-' + btoa(email).slice(0, 12);
+      handleAuth({ uid, displayName: email.split('@')[0], email });
+      return;
+    }
+    try {
+      await createUserWithEmailAndPassword(auth, email, pw);
+    } catch (e) { showErr('signupErr', friendlyErr(e)); }
+  };
+
+  window.signOut = async () => {
+    if (useFirebase) await signOutFn(auth);
+    else handleAuth(null);
+  };
+
+  function friendlyErr(e) {
+    const c = e.code || '';
+    if (c.includes('user-not-found')) return 'No account with that email.';
+    if (c.includes('wrong-password')) return 'Wrong password.';
+    if (c.includes('email-already')) return 'Email already in use.';
+    if (c.includes('invalid-email')) return 'Invalid email.';
+    if (c.includes('weak-password')) return 'Password too weak.';
+    return e.message || 'Something went wrong.';
+  }
+
+  function showErr(id, msg) {
+    const el = $(id);
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  // ---------- Auth handler ----------
+  async function handleAuth(user) {
+    currentUser = user;
+    if (!user) {
+      currentProfile = null;
+      showScreen('login');
+      return;
+    }
+    // Load profile
+    const profile = await getProfile(user.uid);
+    if (!profile) {
+      $('onbName').value = user.displayName || '';
+      showScreen('onboard');
+    } else {
+      currentProfile = profile;
+      await loadDeck();
+      await loadMatches();
+      showScreen('app');
+    }
+  }
+
+  if (useFirebase) {
+    onAuthStateChanged(auth, async (user) => {
+      hideLoading();
+      if (user) {
+        await handleAuth({
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL
+        });
+      } else {
+        handleAuth(null);
+      }
+    });
+  } else {
+    // Restore demo session
+    const sessUid = sessionStorage.getItem('dusk_sess');
+    if (sessUid && demoDB.users[sessUid]) {
+      const u = demoDB.users[sessUid];
+      handleAuth({ uid: sessUid, displayName: u.displayName, email: u.email || '' });
+    } else {
+      handleAuth(null);
+    }
+    hideLoading();
+  }
+
+  // ---------- Profile ----------
+  async function getProfile(uid) {
+    if (useFirebase) {
+      const snap = await getDoc(doc(db, 'users', uid));
+      return snap.exists() ? snap.data() : null;
+    }
+    return demoDB.users[uid] || null;
+  }
+
+  window.saveProfile = async () => {
+    const name = $('onbName').value.trim();
+    const age = parseInt($('onbAge').value);
+    const photo = $('onbPhoto').value.trim();
+    const bio = $('onbBio').value.trim();
+    const tagStr = $('onbTags').value.trim();
+    if (!name || !age || age < 18 || !bio) {
+      showErr('onbErr', 'Fill out name, age (18+), and bio.');
+      return;
+    }
+    const profile = {
+      uid: currentUser.uid,
+      displayName: name,
+      age,
+      photoURL: photo,
+      bio,
+      tags: tagStr ? tagStr.split(',').map(t => t.trim()).filter(Boolean) : [],
+      createdAt: Date.now()
+    };
+    if (useFirebase) {
+      await setDoc(doc(db, 'users', currentUser.uid), profile);
+    } else {
+      demoDB.users[currentUser.uid] = profile;
+      sessionStorage.setItem('dusk_sess', currentUser.uid);
+      saveDemo();
+    }
+    currentProfile = profile;
+    await loadDeck();
+    await loadMatches();
+    showScreen('app');
+    toast('Profile saved — happy hunting');
+  };
+
+  // ---------- Deck ----------
+  window.loadDeck = async () => {
+    let users;
+    if (useFirebase) {
+      const snap = await getDocs(collection(db, 'users'));
+      users = snap.docs.map(d => d.data());
+    } else {
+      users = Object.values(demoDB.users);
+    }
+    // Filter out self and already-swiped
+    const seen = await getSwiped(currentUser.uid);
+    deck = users.filter(u => u.uid !== currentUser.uid && !seen.has(u.uid));
+    deck.sort(() => Math.random() - 0.5);
+    renderDeck();
+  };
+
+  async function getSwiped(uid) {
+    if (useFirebase) {
+      const snap = await getDocs(collection(db, 'likes', uid, 'sent'));
+      return new Set(snap.docs.map(d => d.id));
+    }
+    return new Set(Object.keys(demoDB.likes[uid] || {}));
+  }
+
+  function renderDeck() {
+    const container = $('deck');
+    container.querySelectorAll('.card').forEach(c => c.remove());
+    if (deck.length === 0) { $('emptyState').style.display = 'flex'; return; }
+    $('emptyState').style.display = 'none';
+
+    const visible = deck.slice(0, 3).reverse();
+    visible.forEach((p, idx) => {
+      const realIdx = visible.length - 1 - idx;
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.transform = `scale(${1 - realIdx * 0.04}) translateY(${realIdx * 12}px)`;
+      card.style.zIndex = 10 - realIdx;
+      card.dataset.idx = realIdx;
+
+      const photoHtml = p.photoURL
+        ? `<div class="card-photo" style="background-image:url('${p.photoURL}')"></div>`
+        : `<div class="card-photo"><div class="photo-fallback">${avatarInitial(p)}</div></div>`;
+
+      card.innerHTML = `
+        ${photoHtml}
+        <div class="card-info">
+          <div class="card-name">${escapeHtml(p.displayName)} <span class="card-age">${p.age}</span></div>
+          <div class="card-bio">${escapeHtml(p.bio)}</div>
+          <div class="card-tags">${(p.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+        </div>
+        <div class="stamp like">LIKE</div>
+        <div class="stamp nope">NOPE</div>
+      `;
+      if (realIdx === 0) attachDrag(card);
+      container.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function attachDrag(card) {
+    let sx=0, sy=0, dx=0, dy=0, dragging=false;
+    const like = card.querySelector('.stamp.like');
+    const nope = card.querySelector('.stamp.nope');
+    const start = (x,y) => { sx=x; sy=y; dragging=true; card.classList.add('dragging'); };
+    const move = (x,y) => {
+      if (!dragging) return;
+      dx = x - sx; dy = y - sy;
+      card.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx*0.08}deg)`;
+      like.style.opacity = Math.max(0, Math.min(1, dx/100));
+      nope.style.opacity = Math.max(0, Math.min(1, -dx/100));
+    };
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      card.classList.remove('dragging');
+      if (Math.abs(dx) > 100) {
+        window.swipeAction(dx > 0 ? 'right' : 'left', card);
+      } else {
+        card.style.transform = '';
+        like.style.opacity = 0; nope.style.opacity = 0;
+      }
+      dx=0; dy=0;
+    };
+    card.addEventListener('pointerdown', e => { card.setPointerCapture(e.pointerId); start(e.clientX, e.clientY); });
+    card.addEventListener('pointermove', e => move(e.clientX, e.clientY));
+    card.addEventListener('pointerup', end);
+    card.addEventListener('pointercancel', end);
+  }
+
+  window.swipeAction = async (dir, cardEl) => {
+    if (!deck.length) return;
+    const top = cardEl || document.querySelector('.card[data-idx="0"]');
+    if (!top) return;
+    const xOff = dir === 'right' ? 600 : -600;
+    top.style.transform = `translate(${xOff}px, -40px) rotate(${dir==='right'?25:-25}deg)`;
+    top.style.opacity = '0';
+
+    const swiped = deck.shift();
+    const liked = dir === 'right';
+
+    await recordSwipe(currentUser.uid, swiped.uid, liked);
+
+    setTimeout(async () => {
+      renderDeck();
+      if (liked) {
+        const mutual = await checkMutual(currentUser.uid, swiped.uid);
+        if (mutual) {
+          await createMatch(currentUser.uid, swiped.uid);
+          openMatchModal(swiped);
+          await loadMatches();
+        }
+      }
+    }, 320);
+  };
+
+  async function recordSwipe(meUid, themUid, liked) {
+    if (useFirebase) {
+      await setDoc(doc(db, 'likes', meUid, 'sent', themUid), { liked, ts: serverTimestamp() });
+    } else {
+      demoDB.likes[meUid] = demoDB.likes[meUid] || {};
+      demoDB.likes[meUid][themUid] = { liked, ts: Date.now() };
+      // Seeded users randomly like you back ~60%
+      if (liked && themUid.startsWith('seed-') && Math.random() < 0.6) {
+        demoDB.likes[themUid] = demoDB.likes[themUid] || {};
+        demoDB.likes[themUid][meUid] = { liked: true, ts: Date.now() };
+      }
+      saveDemo();
+    }
+  }
+
+  async function checkMutual(meUid, themUid) {
+    if (useFirebase) {
+      const snap = await getDoc(doc(db, 'likes', themUid, 'sent', meUid));
+      return snap.exists() && snap.data().liked === true;
+    }
+    return !!(demoDB.likes[themUid]?.[meUid]?.liked);
+  }
+
+  function matchId(a, b) {
+    return [a, b].sort().join('_');
+  }
+
+  async function createMatch(a, b) {
+    const mid = matchId(a, b);
+    if (useFirebase) {
+      await setDoc(doc(db, 'matches', mid), {
+        users: [a, b].sort(),
+        createdAt: serverTimestamp(),
+        lastMessage: null
+      });
+    } else {
+      demoDB.matches[mid] = { users: [a, b].sort(), createdAt: Date.now(), lastMessage: null };
+      saveDemo();
+    }
+  }
+
+  // ---------- Matches list ----------
+  async function loadMatches() {
+    if (useFirebase) {
+      const q = query(collection(db, 'matches'), where('users', 'array-contains', currentUser.uid));
+      const snap = await getDocs(q);
+      matches = await Promise.all(snap.docs.map(async d => {
+        const data = d.data();
+        const otherUid = data.users.find(u => u !== currentUser.uid);
+        const profile = await getProfile(otherUid);
+        return { id: d.id, profile, lastMessage: data.lastMessage };
+      }));
+    } else {
+      matches = [];
+      for (const [mid, m] of Object.entries(demoDB.matches)) {
+        if (m.users.includes(currentUser.uid)) {
+          const otherUid = m.users.find(u => u !== currentUser.uid);
+          const profile = demoDB.users[otherUid];
+          if (profile) matches.push({ id: mid, profile, lastMessage: m.lastMessage });
+        }
+      }
+    }
+    const badge = $('matchBadge');
+    if (matches.length) { badge.textContent = matches.length; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function renderMatches() {
+    const list = $('matchesList');
+    list.innerHTML = '';
+    if (matches.length === 0) { $('matchesEmpty').style.display = 'block'; return; }
+    $('matchesEmpty').style.display = 'none';
+    matches.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'match-row';
+      const av = document.createElement('div');
+      av.className = 'match-avatar';
+      setAvatar(av, m.profile);
+      const meta = document.createElement('div');
+      meta.className = 'match-meta';
+      meta.innerHTML = `<div class="match-meta-name">${escapeHtml(m.profile.displayName)}</div>
+        <div class="match-meta-preview">${escapeHtml(m.lastMessage?.text || 'Say hi 👋')}</div>`;
+      row.appendChild(av); row.appendChild(meta);
+      row.onclick = () => openChat(m);
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- Chat ----------
+  function openChat(m) {
+    activeChat = m;
+    setAvatar($('chatAvatar'), m.profile);
+    $('chatName').textContent = m.profile.displayName;
+    $('chatSub').textContent = `${m.profile.age || ''} · matched`;
+    $('chatArea').innerHTML = '';
+    showScreen('chat');
+    subscribeMessages(m);
+  }
+
+  function subscribeMessages(m) {
+    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    if (useFirebase) {
+      const q = query(collection(db, 'matches', m.id, 'messages'), orderBy('ts', 'asc'));
+      chatUnsub = onSnapshot(q, snap => {
+        const area = $('chatArea');
+        area.innerHTML = '';
+        snap.forEach(d => renderMsg(d.data(), area));
+        area.scrollTop = area.scrollHeight;
+      });
+    } else {
+      const msgs = demoDB.messages[m.id] || [];
+      const area = $('chatArea');
+      area.innerHTML = '';
+      msgs.forEach(msg => renderMsg(msg, area));
+      area.scrollTop = area.scrollHeight;
+    }
+  }
+
+  function renderMsg(msg, area) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + (msg.from === currentUser.uid ? 'me' : 'them');
+    el.textContent = msg.text;
+    area.appendChild(el);
+  }
+
+  window.sendChat = async () => {
+    const input = $('chatInput');
+    const text = input.value.trim();
+    if (!text || !activeChat) return;
+    input.value = '';
+    const msg = { from: currentUser.uid, text, ts: useFirebase ? serverTimestamp() : Date.now() };
+    if (useFirebase) {
+      await addDoc(collection(db, 'matches', activeChat.id, 'messages'), msg);
+      await updateDoc(doc(db, 'matches', activeChat.id), { lastMessage: { text, from: currentUser.uid, ts: Date.now() } });
+    } else {
+      demoDB.messages[activeChat.id] = demoDB.messages[activeChat.id] || [];
+      demoDB.messages[activeChat.id].push(msg);
+      demoDB.matches[activeChat.id].lastMessage = { text, from: currentUser.uid, ts: Date.now() };
+      saveDemo();
+      subscribeMessages(activeChat);
+      // Simulate other user reply in demo mode
+      if (activeChat.profile.uid.startsWith('seed-')) {
+        setTimeout(() => {
+          const reply = generateReply(text, activeChat.profile);
+          demoDB.messages[activeChat.id].push({ from: activeChat.profile.uid, text: reply, ts: Date.now() });
+          demoDB.matches[activeChat.id].lastMessage = { text: reply, from: activeChat.profile.uid, ts: Date.now() };
+          saveDemo();
+          subscribeMessages(activeChat);
+        }, 900 + Math.random() * 1200);
+      }
+    }
+  };
+
+  function generateReply(text, profile) {
+    const t = text.toLowerCase();
+    if (/\?$/.test(t)) return "ask me in person.";
+    if (/hi|hey|hello/.test(t)) return `hi yourself. took you long enough.`;
+    if (/coffee|drink|dinner|date/.test(t)) return `okay. when. and don't pick somewhere bad.`;
+    if (/cute|hot|pretty/.test(t)) return `careful. I bruise easy.`;
+    const generic = ["tell me more.", "mm. keep going.", "okay I like you. don't make me regret it.", "say that to my face on saturday."];
+    return generic[Math.floor(Math.random() * generic.length)];
+  }
+
+  // ---------- Match modal ----------
+  let pendingMatchProfile = null;
+  function openMatchModal(profile) {
+    pendingMatchProfile = profile;
+    $('modalSub').textContent = `You and ${profile.displayName.split(' ')[0]} liked each other.`;
+    setAvatar($('modalMyAvatar'), currentProfile);
+    setAvatar($('modalTheirAvatar'), profile);
+    $('matchModal').classList.add('show');
+  }
+  window.closeMatchModal = () => { $('matchModal').classList.remove('show'); pendingMatchProfile = null; };
+  window.openMatchChat = async () => {
+    if (!pendingMatchProfile) return;
+    closeMatchModal();
+    await loadMatches();
+    const m = matches.find(x => x.profile.uid === pendingMatchProfile.uid);
+    if (m) openChat(m);
+  };
+
+  // Demo sign-out helper handles state reset
+  if (!useFirebase) {
+    window.signOut = () => {
+      sessionStorage.removeItem('dusk_sess');
+      handleAuth(null);
+    };
+  }
+
+  // For demo: store session uid after onboarding
+  const _origSave = window.saveProfile;
+  if (!useFirebase) {
+    window.saveProfile = async function() {
+      await _origSave.call(this);
+      if (currentUser) sessionStorage.setItem('dusk_sess', currentUser.uid);
+    };
+  }
+
+  window.showScreen = showScreen;
+
+  // Enter key in chat input
+  $('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') window.sendChat(); });
+  $('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.signInEmail(); });
+  $('signupPassword').addEventListener('keydown', e => { if (e.key === 'Enter') window.signUpEmail(); });
+  $('matchModal').addEventListener('click', e => { if (e.target.id === 'matchModal') window.closeMatchModal(); });
+</script>
+
+</body>
+</html>
