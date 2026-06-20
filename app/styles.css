@@ -1,0 +1,143 @@
+:root {
+  --bg: #0f1729;
+  --bg-alt: #131c30;
+  --surface: #1b2740;
+  --border: #2a3a5c;
+  --text: #e8edf7;
+  --muted: #9aa8c4;
+  --primary: #4f8cff;
+  --primary-dark: #356fe0;
+  --accent: #36d399;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --radius: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container { width: min(1100px, 92%); margin: 0 auto; }
+
+a { color: var(--primary); text-decoration: none; }
+
+.site-header {
+  position: sticky;
+  top: 0;
+  background: rgba(15, 23, 41, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+.brand { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+.brand span { color: var(--primary); }
+.nav nav { display: flex; align-items: center; gap: 22px; }
+.nav nav a { color: var(--muted); font-weight: 600; }
+.nav nav a.btn { color: #fff; }
+
+.btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .08s ease, background .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
+.btn-ghost:hover { border-color: var(--primary); }
+.btn-lg { padding: 14px 26px; font-size: 1.05rem; }
+
+.hero { padding: 90px 0 70px; text-align: center; }
+.hero h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); margin: 0 0 18px; letter-spacing: -1px; }
+.lead { font-size: 1.25rem; color: var(--muted); max-width: 640px; margin: 0 auto 32px; }
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.hero-note { margin-top: 20px; color: var(--muted); font-size: .92rem; }
+
+.section { padding: 70px 0; }
+.section h2 { font-size: 2rem; text-align: center; margin: 0 0 40px; }
+.section-alt { background: var(--bg-alt); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.card h3 { margin: 0 0 8px; }
+.card p { color: var(--muted); margin: 0; }
+
+.pricing { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.price-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px;
+  width: 300px;
+  position: relative;
+}
+.price-card.featured { border-color: var(--primary); box-shadow: var(--shadow); }
+.badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--primary); color: #fff; font-size: .75rem; font-weight: 700;
+  padding: 4px 12px; border-radius: 999px;
+}
+.price { font-size: 2.6rem; font-weight: 800; margin: 10px 0; }
+.price span { font-size: 1rem; color: var(--muted); font-weight: 500; }
+.price-card ul { list-style: none; padding: 0; margin: 0 0 24px; }
+.price-card li { padding: 7px 0; color: var(--muted); border-bottom: 1px solid var(--border); }
+.price-card .btn { width: 100%; text-align: center; }
+.pricing-note { text-align: center; color: var(--muted); margin-top: 30px; }
+.pricing-note code { background: var(--surface); padding: 2px 6px; border-radius: 6px; }
+
+.site-footer { padding: 40px 0; border-top: 1px solid var(--border); text-align: center; color: var(--muted); }
+
+/* Generator */
+.gen-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 40px 0; align-items: start; }
+@media (max-width: 900px) { .gen-wrap { grid-template-columns: 1fr; } }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+.panel h2 { margin-top: 0; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.field input, .field textarea, .field select {
+  width: 100%; padding: 10px 12px; border-radius: 9px;
+  border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  font-size: .95rem;
+}
+.row { display: flex; gap: 12px; }
+.row .field { flex: 1; }
+
+table.items { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+table.items th { text-align: left; font-size: .78rem; color: var(--muted); padding: 6px; }
+table.items td { padding: 4px; }
+table.items input { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.item-remove { background: transparent; border: none; color: #ff7a7a; cursor: pointer; font-size: 1.1rem; }
+
+.totals { text-align: right; margin-top: 10px; }
+.totals div { padding: 3px 0; color: var(--muted); }
+.totals .grand { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+
+/* Invoice preview */
+#preview {
+  background: #fff; color: #1a1a1a; border-radius: 8px; padding: 40px;
+  font-size: 14px; box-shadow: var(--shadow);
+}
+#preview h1 { color: #1a1a1a; margin: 0; }
+#preview .inv-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+#preview .biz { font-size: 1.3rem; font-weight: 800; }
+#preview .inv-meta { text-align: right; color: #555; }
+#preview table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+#preview table th { text-align: left; border-bottom: 2px solid #1a1a1a; padding: 8px 6px; font-size: 12px; text-transform: uppercase; }
+#preview table td { padding: 8px 6px; border-bottom: 1px solid #eee; }
+#preview .pv-totals { margin-left: auto; width: 260px; }
+#preview .pv-totals .pv-row { display: flex; justify-content: space-between; padding: 5px 0; }
+#preview .pv-totals .pv-grand { border-top: 2px solid #1a1a1a; font-weight: 800; font-size: 1.1rem; padding-top: 8px; }
+#preview .pv-footer { margin-top: 30px; color: #777; font-size: 12px; }
+#preview .pv-brand { margin-top: 24px; text-align: center; color: #aaa; font-size: 11px; }
+.toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
